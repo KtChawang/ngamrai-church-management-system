@@ -2,9 +2,12 @@ services:
   - type: web
     name: church-management-system
     env: python
-    plan: free  # 👈 this is important
+    plan: free  # ✅ THIS makes it free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn church_management_system.wsgi:application"
+    autoDeploy: true
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: church_management_system.settings
+      - key: SECRET_KEY
+        generateValue: true
