@@ -11,6 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-177odqy)l(gg5ogszudu&zsa^@)bs#zhg_l$e00fz@x^%277f%'
 DEBUG = True
+ALLOWED_HOSTS = ['church-management-system-asyl.onrender.com', '127.0.0.1', 'localhost']
+
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'ngamraicms.com', 'www.ngamraicms.com']
 BASE_DOMAIN = 'https://ngamraicms.com'
 
