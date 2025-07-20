@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% if filters %}Filtered{% else %}Full{% endif %} Stewardship Report</title>
+
+    <style>
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url("{% static 'fonts/DejaVuSans.ttf' %}") format('truetype');
+        }
+
+        @page {
+            size: A4;
+            margin: 30px 40px 100px 40px;
+        }
+
+        body {
+            font-size: 12px;
+            margin: 0;
+            font-family: 'DejaVu Sans', sans-serif;
+        }
+
+        .church-logo {
+            text-align: center;
+            margin: 0 auto 5px auto;
+            max-width: 100%;
+        }
+
+        .church-logo img {
+            max-height: 80px;
+            max-width: 220px;
+            object-fit: contain;
+        }
+
+        h2, h3 {
+            text-align: center;
+            font-size: 14px;
+            margin: 4px 0 2px 0;
+        }
+
+        h4 {
+            text-align: center;
+            font-size: 14px;
+            margin: 14px 0 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        p {
+            margin: 3px 0;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 10px;
+            color: #888;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    {% if church_image_url %}
+        <div class="church-logo">
+            <img src="{{ church_image_url }}" alt="Church Logo">
+        </div>
+    {% endif %}
+
+    <h2>{% if filters %}Filtered{% else %}Full{% endif %} Stewardship Report</h2>
+
+    {% if church_name %}
+        <h4>{{ church_name }}</h4>
+    {% endif %}
+
+    <p><strong>Generated:</strong> {{ generated_at }}</p>
+
+    {% if filters %}
+        {% if filters.start_date %}<p><strong>Start Date:</strong> {{ filters.start_date }}</p>{% endif %}
+        {% if filters.end_date %}<p><strong>End Date:</strong> {{ filters.end_date }}</p>{% endif %}
+        {% if filters.transaction_type %}<p><strong>Type:</strong> {{ filters.transaction_type }}</p>{% endif %}
+        {% if filters.category %}<p><strong>Category:</strong> {{ filters.category }}</p>{% endif %}
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td>{{ record.date }}</td>
+                    <td>{{ record.get_transaction_type_display }}</td>
+                    <td>{{ record.get_category_display }}</td>
+                    <td>&#8377;{{ record.amount|floatformat:"2" }}</td>
+                    <td>{{ record.description|default:"-" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4 style="margin-top: 30px;">Total Income: &#8377;{{ total_income|floatformat:"2" }}</h4>
+    <h4>Total Expenditure: &#8377;{{ total_expenditure|floatformat:"2" }}</h4>
+    <h4>Current Balance: &#8377;{{ current_balance|floatformat:"2" }}</h4>
+
+    <div class="footer">
+        <p>&copy; {{ now.year }} {{ church_name }}. All rights reserved. | Powered by Ngamrai Church Management System</p>
+    </div>
+
+</body>
+</html>

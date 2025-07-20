@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-3">
+        <a href="{% url 'church:stewardship_list' %}" class="btn btn-outline-primary">
+            ← Back to Stewardship
+        </a>
+    </div>
+
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">🗑️ Confirm Move to Trash</h4>
+        <p>Are you sure you want to move this record to trash?</p>
+        <hr>
+        <ul>
+            <li><strong>Date:</strong> {{ record.date }}</li>
+            <li><strong>Type:</strong> {{ record.get_transaction_type_display }}</li>
+            <li><strong>Category:</strong> {{ record.get_category_display }}</li>
+            <li><strong>Amount:</strong> ₹{{ record.amount }}</li>
+            <li><strong>Description:</strong> {{ record.description|default:"-" }}</li>
+        </ul>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger fw-bold">✅ Yes, Move to Trash</button>
+            <a href="{% url 'church:stewardship_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

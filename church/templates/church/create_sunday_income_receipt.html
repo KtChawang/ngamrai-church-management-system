@@ -1,0 +1,109 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% load tz %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light py-3">
+    <div class="w-100 px-2" style="max-width: 500px;">
+        <div class="bg-white shadow rounded-3 p-3">
+
+            {% if church_logo %}
+                <div class="text-center mb-2">
+                    <img src="{{ church_logo }}" alt="Church Logo" style="height: 50px;">
+                    <h6 class="fw-bold mt-1 mb-2">{{ church_name }}</h6>
+                </div>
+            {% endif %}
+
+            <h5 class="text-center text-primary mb-2">Sunday Income Receipt</h5>
+
+            <!-- Auto-fill form: GET request with date -->
+            <form method="get" class="mb-2">
+                <div class="row gx-2 gy-1 align-items-center justify-content-center">
+                    <div class="col-auto form-check">
+                        <input type="checkbox" name="auto_fill" id="auto_fill" value="1" class="form-check-input"
+                            {% if request.GET.auto_fill == '1' %}checked{% endif %}>
+                        <label for="auto_fill" class="form-check-label small">Auto-fill last Sunday</label>
+                    </div>
+                    <div class="col">
+                        <input type="date" name="sunday_date" id="sunday_date" class="form-control form-control-sm"
+                            value="{{ request.GET.sunday_date|default:'' }}" max="{{ now|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">🔄 Load</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Main POST form -->
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <div class="mb-2">
+                    <label class="form-label small">Name</label>
+                    {{ form.name }}
+                </div>
+
+                <div class="mb-2 d-flex align-items-center">
+                    <label for="{{ form.phone_number.id_for_label }}" class="form-label small me-2 mb-0" style="min-width: 110px;">Phone Number</label>
+                    <div class="flex-grow-1">
+                        {{ form.phone_number }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label small">Amount</label>
+                    {{ form.amount }}
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label small">Category</label>
+                    {{ form.category }}
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label small">Thank You Message</label>
+                    {{ form.thank_you_message }}
+                    {% if form.thank_you_message.errors %}
+                        <div class="text-danger small">
+                            {{ form.thank_you_message.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label small">Digital Signature</label>
+                    {{ form.digital_signature }}
+                    {% if form.digital_signature.errors %}
+                        <div class="text-danger small">
+                            {{ form.digital_signature.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <label>Received By</label>
+                    <input type="text" value="{{ church_name }}" disabled>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label small">Date & Time</label>
+                    <input type="text" class="form-control form-control-sm"
+                        value="{{ current_datetime|date:'D, M d, Y H:i A' }}" disabled>
+                </div>
+
+                <div class="mb-2 text-center text-muted small">
+                    🙏 Thank you!
+                </div>
+
+                <div class="text-center">
+                    <a href="{% url 'church:sunday_income_receipt_list' %}" class="btn btn-sm btn-secondary me-2">⬅️ Back</a>
+                    <button type="submit" class="btn btn-sm btn-primary px-3 py-1">
+                        📀 Save & Print
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

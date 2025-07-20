@@ -1,0 +1,55 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>🗑️ Trashed Stewardship Records</h2>
+
+    <!-- Back Button -->
+    <a href="{% url 'church:stewardship_list' %}" class="btn btn-secondary mb-3">← Back to Records</a>
+
+    {% if trashed_records %}
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in trashed_records %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td>{{ record.get_transaction_type_display }}</td>
+                <td>{{ record.get_category_display }}</td>
+                <td>₹{{ record.amount }}</td>
+                <td>{{ record.description|default:"-" }}</td>
+                <td class="d-flex gap-2">
+
+                    <!-- 🔁 Restore -->
+                    <form method="post" action="{% url 'church:restore_stewardship_record' record.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-success" title="Restore">🔁</button>
+                    </form>
+
+                    {% if forloop.first %}
+                    <!-- 🧹 Empty Trash (shown only once in the first row) -->
+                    <form method="post" action="{% url 'church:empty_stewardship_trash' %}" class="d-inline ms-2" onsubmit="return confirm('Are you sure you want to permanently delete ALL trashed records?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger" title="Empty Trash">🧹</button>
+                    </form>
+                    {% endif %}
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info mt-4">No trashed records found.</div>
+    {% endif %}
+</div>
+{% endblock %}

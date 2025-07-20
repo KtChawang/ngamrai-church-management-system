@@ -1,0 +1,33 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>📢 Announcements & 🔔 Notifications</h2>
+
+  {% if announcements %}
+    <div class="list-group">
+      {% for ann in announcements %}
+        <div class="list-group-item mb-2">
+          <h5>{{ ann.title }}</h5>
+          <p>{{ ann.content }}</p>
+          {% if ann.is_notification %}
+            <span class="badge bg-info">🔔 Personal Notification</span>
+            {% if not ann.is_read %}
+              <a href="{% url 'mark_announcement_read' ann.pk %}" class="btn btn-sm btn-outline-primary">Mark as Read</a>
+            {% else %}
+              <span class="badge bg-secondary">✔️ Read</span>
+            {% endif %}
+          {% else %}
+            <span class="badge bg-success">📢 Public Announcement</span>
+          {% endif %}
+          {% if ann.event %}
+            <p><small>📅 Related Event: {{ ann.event.title }}</small></p>
+          {% endif %}
+          <small class="text-muted">{{ ann.created_at|date:"M d, Y H:i" }}</small>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No announcements or notifications yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

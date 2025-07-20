@@ -1,0 +1,50 @@
+/* Style for form-container */
+.registration-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Two-column layout for form grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+    gap: 15px;
+}
+
+/* Style for each form group */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Button Style */
+.btn-submit {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+/* Styling for Error Messages */
+.error-messages {
+    margin-top: 15px;
+    color: red;
+}
+
+.alert {
+    padding: 10px;
+    background-color: #f8d7da;
+    border-radius: 5px;
+}
+
+.alert ul {
+    list-style-type: none;
+    padding: 0;
+}

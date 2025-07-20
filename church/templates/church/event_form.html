@@ -1,0 +1,88 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<style>
+    .form-box {
+        background: #fff;
+        padding: 15px;
+        margin: 30px auto;
+        max-width: 320px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        font-size: 0.85rem;
+        line-height: 1.2;
+    }
+
+    .form-box h2 {
+        text-align: center;
+        font-size: 1.05rem;
+        margin: 10px 0 15px 0;
+    }
+
+    .form-box label {
+        margin-bottom: 2px;
+        font-weight: 500;
+    }
+
+    .form-box input,
+    .form-box select,
+    .form-box textarea {
+        padding: 4px 6px;
+        font-size: 0.82rem;
+        border-radius: 4px;
+        margin-bottom: 6px;
+        width: 100%;
+        line-height: 1.1;
+    }
+
+    .form-box textarea {
+        height: 55px;
+        resize: vertical;
+    }
+
+    .btn-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+        margin-top: 6px;
+    }
+
+    .btn-row .btn {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        width: 50%;
+    }
+
+    .back-btn {
+        display: block;
+        text-align: center;
+        margin-bottom: -10px;
+    }
+
+    .back-btn a {
+        font-size: 0.8rem;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .back-btn a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="form-box">
+    <div class="back-btn">
+        <a href="{% url 'church:church_events' %}">🔙 Back to Events</a>
+    </div>
+
+    <h2>➕ Add Event</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="btn-row">
+            <button type="submit" class="btn btn-success btn-sm">Save</button>
+            <a href="{% url 'church:church_events' %}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

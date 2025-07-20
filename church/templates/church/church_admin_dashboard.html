@@ -1,0 +1,229 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    body { background: linear-gradient(to right, #f3f4f6, #e0e7ff); }
+
+    .card            { border-radius: 12px; transition: box-shadow .3s ease; }
+    .card:hover      { box-shadow: 0 8px 24px rgba(0,0,0,.05); }
+    .card-header     { font-weight: 600; }
+    .list-group-item { background-color: transparent; }
+    .list-group-item a { display:block; width:100%; }
+
+    .text-muted { font-size: .875rem; }
+    .fw-bold    { font-size: 1.2rem; }
+
+    .container-fluid {
+        background: rgba(255,255,255,.9);
+        padding: 40px 30px;
+        border-radius: 16px;
+        box-shadow: 0 8px 40px rgba(0,0,0,.03);
+    }
+
+    .card-title { font-size: 1.3rem; }
+    .badge      { font-size: .85rem; }
+    .event-time { font-size: .85rem; color:#555; }
+</style>
+
+<div class="container-fluid mt-5">
+
+    {% if upcoming_due_date %}
+    <div class="alert alert-warning text-center shadow-sm mb-4">
+        ⏳ <strong>Reminder:</strong> Your subscription is due on
+        <strong>{{ upcoming_due_date|date:"M j, Y" }}</strong>.
+        Please <a href="{% url 'church:make_payment' %}" class="text-primary fw-bold">make payment</a> to avoid suspension.
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Sidebar (Left) -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    {% if church.profile_picture %}
+                        <img src="{{ church.profile_picture.url }}" alt="Church Profile" class="img-fluid rounded-circle mb-2" style="max-height:120px;">
+                    {% else %}
+                        <img src="{% static 'img/default_church.png' %}" alt="Default Profile" class="img-fluid rounded-circle mb-2" style="max-height:120px;">
+                    {% endif %}
+                    <h5 class="fw-bold text-primary mt-2">{{ church.church_name }}</h5>
+                    <p class="text-muted">{{ church.email_address }}</p>
+                    <a href="{% url 'church:upload_church_image' %}" class="btn btn-sm btn-outline-primary mt-2">
+                        📤 Upload/Change Church Profile Picture
+                    </a>
+                </div>
+                <ul class="list-group list-group-flush mt-3">
+                    <li class="list-group-item"><a href="{% url 'church:church_events' %}"          class="text-decoration-none text-dark">📅 Manage Events</a></li>
+                    <li class="list-group-item"><a href="{% url 'church:livestream_list' %}"        class="text-decoration-none text-dark">🎥 Manage Live Streams</a></li>
+                    <li class="list-group-item"><a href="{% url 'church:chatroom_list' %}"          class="text-decoration-none text-dark">💬 Manage Chat Rooms</a></li>
+                    <li class="list-group-item"><a href="{% url 'church:create_volunteer' %}"       class="text-decoration-none text-dark">🙋‍♀️ Create Volunteer</a></li>
+                    <li class="list-group-item"><a href="{% url 'church:list_volunteers' %}"        class="text-decoration-none text-dark">📋 View Volunteers</a></li>
+                    <li class="list-group-item"><a href="{% url 'church:church_announcement_list' %}" class="text-decoration-none text-dark">📋 Manage Announcements</a></li>
+                    <li class="list-group-item"><a href="{% url 'church:sms_logs' %}"               class="text-decoration-none text-dark">📩 SMS Logs</a></li>
+                    <li class="list-group-item"><a href="{% url 'church:church_admin_online_giving' %}" class="text-decoration-none text-dark">🧾 Online Giving Setup</a></li>
+                    <li class="list-group-item text-center">
+                        <form method="post" action="{% url 'church:church_admin_logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger mt-2 w-100">🚪 Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content (Center) -->
+        <div class="col-md-6">
+            <div class="row mb-4">
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">📢 Recent Announcements</div>
+                        <ul class="list-group list-group-flush">
+                            {% for ann in recent_announcements %}
+                                <li class="list-group-item">
+                                    <strong>{{ ann.title }}</strong><br>
+                                    <p class="mb-1 text-muted">{{ ann.content|truncatewords:25 }}</p>
+                                    <small class="text-muted">{{ ann.created_at|date:"M d, Y H:i" }}</small><br>
+                                    {% if ann.is_notification %}
+                                        <span class="badge bg-warning text-dark mt-1">🔔 Notification</span>
+                                    {% else %}
+                                        <span class="badge bg-success mt-1">📢 Public</span>
+                                    {% endif %}
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item text-muted">No announcements available.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">📅 Upcoming Events</div>
+                        <ul class="list-group list-group-flush">
+                            {% for event in upcoming_events %}
+                                <li class="list-group-item">
+                                    <strong>{{ event.title }}</strong><br>
+                                    <span class="event-time">
+                                        {{ event.start_datetime|date:"D, M d, Y H:i" }} — {{ event.end_datetime|date:"H:i" }}<br>
+                                        📍 {{ event.location }}
+                                    </span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item text-muted">No upcoming events.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white">🎥 Upcoming Live Streams</div>
+                        <ul class="list-group list-group-flush">
+                            {% for stream in upcoming_streams %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ stream.title }}
+                                    <span class="badge bg-success">{{ stream.date|date:"M d, Y H:i" }}</span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item text-muted">No upcoming streams.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">➕ Stewardship Tracker</div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-2 justify-content-between">
+                                <div class="d-flex gap-2 flex-grow-1">
+                                    <a href="{% url 'church:add_stewardship_record' %}" class="btn btn-success w-100">➕ Add Record</a>
+                                    <a href="{% url 'church:stewardship_list' %}" class="btn btn-secondary w-100">📋 View Saved Records</a>
+                                </div>
+                                <a href="{% url 'church:sunday_income_receipt_list' %}" class="btn btn-primary w-100 w-md-auto">🧾 Sunday Income Receipt</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-secondary text-white">📖 Bible Reading & Devotions</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a href="{% url 'church:bible_reading_list' %}" class="text-decoration-none text-dark">📋 View Reading Plans</a></li>
+                            <li class="list-group-item"><a href="{% url 'church:add_bible_reading' %}" class="text-decoration-none text-dark">➕ Add Reading Plan</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar (Stats + Staff Payment Summary) -->
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white text-center">📊 Church Statistics</div>
+                <div class="card-body">
+                    <h6 class="text-muted">👥 Member Categories</h6>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Men Society <span class="badge bg-secondary">{{ category_stats|dict_get:"Men Society"|default:"0" }}</span></span>
+                            <a href="{% url 'church:society_members_pdf' 'Men Society' %}" class="btn btn-sm btn-outline-primary">📄 PDF</a>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Women Society <span class="badge bg-secondary">{{ category_stats|dict_get:"Women Society"|default:"0" }}</span></span>
+                            <a href="{% url 'church:society_members_pdf' 'Women Society' %}" class="btn btn-sm btn-outline-primary">📄 PDF</a>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Youth Society <span class="badge bg-secondary">{{ category_stats|dict_get:"Youth Society"|default:"0" }}</span></span>
+                            <a href="{% url 'church:society_members_pdf' 'Youth Society' %}" class="btn btn-sm btn-outline-primary">📄 PDF</a>
+
+                        </li>
+                    </ul>
+                    <div class="row mt-3 gx-2">
+    <div class="col-6">
+        <div class="card bg-light border-0 shadow-sm text-center">
+            <div class="card-body p-2">
+                <h6 class="text-success mb-1">🧍Total Members</h6>
+                <h5 class="fw-bold text-success">{{ total_members }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card bg-light border-0 shadow-sm text-center">
+            <div class="card-body p-2">
+                <h6 class="text-primary mb-1">🙋‍♂️ Volunteers</h6>
+                <h5 class="fw-bold text-primary">{{ total_volunteers }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ✅ Staff Payment Summary Card -->
+<div class="card shadow-sm rounded-3">
+    <div class="card-header bg-success text-white text-center fw-bold">
+        💰 Staff Payments
+    </div>
+    <div class="card-body text-center">
+        <p class="text-muted mb-1">This Month</p>
+        <h6 class="text-primary fw-bold">₹{{ total_paid_this_month|default:"0.00" }}</h6>
+
+        <div class="d-grid gap-2 mt-3">
+            <a href="{% url 'church:staff_list' %}" class="btn btn-outline-primary btn-sm">
+                👥 Manage Staff
+            </a>
+            <a href="{% url 'church:staff_salary_table' %}" class="btn btn-outline-info btn-sm">
+                📊 Salary Management Table
+            </a>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+    </div>
+</div>
+{% endblock %}

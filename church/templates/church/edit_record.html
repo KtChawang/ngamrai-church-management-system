@@ -1,0 +1,58 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f9fbe7, #e8f5e9);
+        min-height: 100vh;
+    }
+
+    .edit-form-container {
+        max-width: 700px;
+        margin: 50px auto;
+    }
+
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #dee2e6;
+    }
+</style>
+
+<div class="container edit-form-container">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">✏️ Edit Stewardship Record</h4>
+        </div>
+        <div class="card-body bg-white">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'church:stewardship_list' %}" class="btn btn-outline-secondary">← Back</a>
+                    <button type="submit" class="btn btn-success">💾 Update Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

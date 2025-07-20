@@ -1,0 +1,154 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<h2>{{ livestream.title }}</h2>
+<p>{{ livestream.description }}</p>
+
+<div class="mb-4">
+  <iframe width="100%" height="400" src="{{ livestream.video_url }}" frameborder="0" allowfullscreen class="rounded shadow-sm"></iframe>
+</div>
+
+{% if chatroom %}
+<div id="chat" class="mt-4">
+  <h3 class="mb-3">💬 Live Chat</h3>
+
+  <!-- ✅ Message Form -->
+  <form id="chatForm" method="post" class="d-flex align-items-center gap-2 mb-3">
+    {% csrf_token %}
+    <input type="hidden" name="chat_room_id" value="{{ chatroom.id }}">
+    <input type="text" name="content" id="messageInput" class="form-control" placeholder="Type your message..." required>
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+
+  <!-- 💬 Message Display -->
+  <div id="messages" style="
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+  ">
+    <!-- Messages will load here -->
+  </div>
+</div>
+{% else %}
+<div class="alert alert-warning mt-3">Chat is not available for this livestream.</div>
+{% endif %}
+{% endblock content %}
+
+{% block scripts %}
+<script>
+const chatRoomId = "{{ chatroom.id|default:'' }}";
+const currentUser = "{{ request.user.username }}";
+let lastMessageCount = 0;
+
+function playNotificationSound() {
+  const audio = new Audio("{% static 'audio/notify.mp3' %}");
+  audio.play();
+}
+
+function scrollToBottom() {
+  const messagesDiv = document.getElementById('messages');
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function fetchMessages() {
+  if (!chatRoomId) return;
+
+  fetch("{% url 'church:fetch_messages' %}?chat_room_id=" + chatRoomId)
+    .then(response => response.json())
+    .then(data => {
+      const messagesDiv = document.getElementById('messages');
+      const newCount = data.messages.length;
+
+      if (newCount > lastMessageCount && lastMessageCount > 0) {
+        playNotificationSound();
+      }
+
+      messagesDiv.innerHTML = '';
+      data.messages.forEach(msg => {
+        const bubble = document.createElement('div');
+        bubble.classList.add('mb-2', 'p-2', 'rounded');
+        bubble.style.backgroundColor = msg.username === currentUser ? '#d4edda' : '#ffffff';
+        bubble.style.border = '1px solid #ccc';
+
+        bubble.innerHTML = `
+          <div>
+            <strong ${msg.username === currentUser ? 'style="color: green;"' : ''}>${msg.username}</strong>
+            <span class="badge bg-${msg.role === 'admin' ? 'danger' : 'secondary'} text-light ms-1">${msg.role}</span>
+            <small class="text-muted float-end">${msg.timestamp}</small>
+          </div>
+          <div id="msg-${msg.id}" class="message-content">${msg.content}</div>
+
+${msg.is_admin ? `
+  <div class="mt-1 d-flex gap-2">
+    <button class="btn btn-sm btn-outline-secondary" onclick="editMessage(${msg.id}, '${msg.content}')">✏️ Edit</button>
+    <button class="btn btn-sm btn-outline-danger" onclick="deleteMessage(${msg.id})">🗑️ Delete</button>
+  </div>
+` : ''}
+        `;
+
+        messagesDiv.appendChild(bubble);
+      });
+
+      lastMessageCount = newCount;
+      scrollToBottom();
+    });
+}
+
+document.getElementById('chatForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  fetch("{% url 'church:post_message' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams(new FormData(this))
+  })
+  .then(response => response.json())
+  .then(() => {
+    document.getElementById('messageInput').value = '';
+    fetchMessages();
+  });
+});
+
+fetchMessages();
+setInterval(fetchMessages, 5000);
+</script>
+{% endblock scripts %}
+
+<script>
+function editMessage(messageId, oldContent) {
+  const newContent = prompt("Edit message:", oldContent);
+  if (newContent !== null && newContent.trim() !== "") {
+    fetch("{% url 'church:edit_message' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        message_id: messageId,
+        new_content: newContent
+      })
+    }).then(() => fetchMessages());
+  }
+}
+
+function deleteMessage(messageId) {
+  if (confirm("Are you sure you want to delete this message?")) {
+    fetch("{% url 'church:delete_message' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({ message_id: messageId })
+    }).then(() => fetchMessages());
+  }
+}
+</script>

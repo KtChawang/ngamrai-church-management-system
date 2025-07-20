@@ -1,0 +1,47 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📨 SMS Logs</h2>
+
+    <table class="table table-striped table-hover border rounded shadow-sm">
+        <thead class="table-light">
+            <tr>
+                <th>📱 Phone</th>
+                <th>✉️ Message</th>
+                <th>🕒 Sent At</th>
+                <th>Status</th>
+                <th>🔁 Resend</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.phone_number }}</td>
+                <td>{{ log.message }}</td>
+                <td>{{ log.sent_at|date:"M d, Y H:i" }}</td>
+                <td>
+                    {% if log.success %}
+                        <span class="badge bg-success">✅ Success</span>
+                    {% else %}
+                        <span class="badge bg-danger">❌ Failed</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="{% url 'church:resend_sms' log.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-warning">Resend</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">No SMS logs yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="javascript:history.back()" class="btn btn-secondary mt-3">← Back</a>
+</div>
+{% endblock %}

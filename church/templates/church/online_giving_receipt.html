@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Giving Receipt</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            width: 240px;
+            margin: 0 auto;
+            padding: 5px;
+            color: #000;
+        }
+
+        .center { text-align: center; }
+        .bold { font-weight: bold; }
+        .line { border-top: 1px dashed #000; margin: 8px 0; }
+        .section { margin-bottom: 10px; }
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+        .small { font-size: 10px; }
+
+        .btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 6px 10px;
+            font-size: 12px;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            border-radius: 3px;
+        }
+
+        .btn:hover { background-color: #0056b3; }
+
+        .alert {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .alert .btn { background-color: #28a745; }
+        .alert .btn:hover { background-color: #218838; }
+
+        @media print {
+            .btn, .alert { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    {% if receipt.id and not is_print_view %}
+        <div class="alert center">
+            ✅ Your giving has been submitted successfully!<br>
+            <a href="{% url 'church:view_online_giving_receipt' receipt.id %}" class="btn btn-sm">
+                🧾 View Receipt
+            </a>
+            <a href="{% url 'church:print_online_giving_receipt' receipt.id %}" target="_blank" class="btn btn-sm">
+                ⬇️ Download PDF
+            </a>
+        </div>
+    {% endif %}
+
+    <div class="center bold">
+        {{ church.church_name|default:"Church Name"|upper }}
+    </div>
+    <div class="center small">
+        {{ church.address|default:"Church Address" }}
+    </div>
+
+    <div class="center">
+        --- RECEIPT ---
+    </div>
+
+    <div class="section">
+        <div><span class="bold">Receipt No:</span> {{ receipt.receipt_number }}</div>
+        <div><span class="bold">Date:</span> {{ receipt.created_at|date:"d M Y H:i" }}</div>
+    </div>
+
+    <div class="section">
+        <div><span class="bold">Name:</span> {{ receipt.giver_name }}</div>
+        <div><span class="bold">Phone:</span> {{ receipt.phone_number }}</div>
+        <div><span class="bold">Category:</span> {{ receipt.get_category_display }}</div>
+        <div><span class="bold">Amount:</span> ₹{{ receipt.amount|floatformat:2 }}</div>
+        <div><span class="bold">Txn ID:</span> {{ receipt.upi_transaction_id }}</div>
+    </div>
+
+    <div class="section">
+        <span class="bold">Note:</span> {{ receipt.thank_you_message|default:"—" }}
+    </div>
+
+    <div class="line"></div>
+
+    <div class="footer">
+        Thank you for your support!<br>
+        This is a system-generated receipt.<br><br>
+        &copy; {{ church.church_name|default:"Church Name" }} — All rights reserved.<br>
+        Powered by <strong>Ngamrai Church Management System</strong>
+    </div>
+
+    {% if is_print_view %}
+    <div class="center">
+        <button onclick="window.print()" class="btn">🖨️ Print this Receipt</button>
+        <a href="{% url 'church:print_online_giving_receipt' receipt.id %}" class="btn" target="_blank">
+            ⬇️ Download PDF
+        </a>
+    </div>
+    {% endif %}
+
+    {% if is_print_view %}
+    <script>
+        window.onload = function () {
+            setTimeout(function () {
+                window.print();
+            }, 1000);
+        };
+    </script>
+    {% endif %}
+
+</body>
+</html>

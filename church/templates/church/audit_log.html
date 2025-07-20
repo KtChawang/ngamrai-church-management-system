@@ -1,0 +1,69 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'church:stewardship_list' %}" class="btn btn-outline-primary fw-bold">← Back to Stewardship Tracker</a>
+    </div>
+
+    <h2>📝 Audit Logs</h2>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User / Church</th>
+                    <th>Action</th>
+                    <th>Record</th>
+                    <th>Amount</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp|date:"M d, Y H:i" }}</td>
+
+                    <!-- ✅ Display user email, or church name, or fallback to "System" -->
+                    <td>
+                        {% if log.user and log.user.email %}
+                            {{ log.user.email }}
+                        {% elif log.stewardship_record and log.stewardship_record.church %}
+                            {{ log.stewardship_record.church.name }}
+                        {% else %}
+                            System
+                        {% endif %}
+                    </td>
+
+                    <td>{{ log.action }}</td>
+
+                    <td>
+                        {% if log.stewardship_record %}
+                            {{ log.stewardship_record.category|capfirst }} (ID: {{ log.stewardship_record.id }})
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if log.stewardship_record %}
+                            ₹{{ log.stewardship_record.amount }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>{{ log.message|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No audit logs found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

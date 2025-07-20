@@ -1,0 +1,23 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4 text-primary">✏️ Edit Live Stream</h3>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">{{ form.title.label_tag }}{{ form.title }}</div>
+        <div class="mb-3">{{ form.video_url.label_tag }}{{ form.video_url }}</div>
+        <div class="mb-3">{{ form.description.label_tag }}{{ form.description }}</div>
+        <div class="mb-3">{{ form.date.label_tag }}{{ form.date }}</div>
+        <div class="mb-3">{{ form.start_time.label_tag }}{{ form.start_time }}</div>
+        <div class="mb-3">{{ form.end_time.label_tag }}{{ form.end_time }}</div>
+        <div class="form-check mb-3">{{ form.is_active }} {{ form.is_active.label_tag }}</div>
+
+        <button type="submit" class="btn btn-success">💾 Save</button>
+        <a href="{% url 'church:livestream_list' %}" class="btn btn-secondary">🔙 Cancel</a>
+    </form>
+</div>
+{% endblock %}

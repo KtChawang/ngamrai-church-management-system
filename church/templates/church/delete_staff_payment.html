@@ -1,0 +1,24 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">Delete Staff Payment</h3>
+
+    <div class="alert alert-danger">
+        <strong>Are you sure</strong> you want to delete this payment?
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <p><strong>Staff:</strong> {{ payment.staff.name }}</p>
+        <p><strong>Role:</strong> {{ payment.staff.role }}</p>
+        <p><strong>Amount:</strong> ₹{{ payment.amount }}</p>
+        <p><strong>Month:</strong> {{ payment.payment_month|date:"F Y" }}</p>
+
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'church:staff_salary_table' %}" class="btn btn-secondary">Cancel</a>
+
+    </form>
+</div>
+{% endblock %}

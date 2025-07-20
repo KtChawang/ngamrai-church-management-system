@@ -1,0 +1,44 @@
+ {% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <!-- Back Button -->
+  <div class="mb-3">
+    <a href="{% url 'church:chatroom_list' %}" class="btn btn-outline-secondary">🔙 Back to Chat Rooms</a>
+
+  </div>
+
+  <h2>➕ Create New Chat Room</h2>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        <strong>Please correct the errors below:</strong>
+      </div>
+    {% endif %}
+
+    <div class="mb-3">
+      <label for="id_name" class="form-label">Chat Room Name</label>
+      {{ form.name }}
+      {% if form.name.errors %}
+        <div class="text-danger small">{{ form.name.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_livestream" class="form-label">Associated Livestream</label>
+      {{ form.livestream }}
+      {% if form.livestream.errors %}
+        <div class="text-danger small">{{ form.livestream.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Chat Room</button>
+    <a href="{% url 'church:chatroom_list' %}" class="btn btn-secondary">Cancel</a>
+
+  </form>
+</div>
+{% endblock %}

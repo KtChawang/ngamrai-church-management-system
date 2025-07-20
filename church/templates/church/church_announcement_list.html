@@ -1,0 +1,48 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>📢 Manage Announcements & Notifications</h2>
+
+    {% if request.user.is_authenticated and request.user.is_church_admin %}
+      <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-outline-secondary">← Back</a>
+    {% elif request.user.is_authenticated and request.user.is_volunteer %}
+      <a href="{% url 'church:volunteer_dashboard' %}" class="btn btn-outline-secondary">← Back</a>
+    {% else %}
+      <a href="/" class="btn btn-outline-secondary">← Back</a>
+    {% endif %}
+  </div>
+
+  <a href="{% url 'church:add_announcement' %}" class="btn btn-primary mb-3">➕ Add New</a>
+
+  {% if announcements %}
+    <div class="list-group">
+      {% for ann in announcements %}
+        <div class="list-group-item mb-2">
+          <h5>{{ ann.title }}</h5>
+          <p>{{ ann.content }}</p>
+
+          {% if ann.is_notification %}
+            <span class="badge bg-info">🔔 Personal Notification</span>
+            <p>To: {{ ann.user.get_full_name|default:ann.user.username }}</p>
+          {% else %}
+            <span class="badge bg-success">📢 Public Announcement</span>
+          {% endif %}
+
+          {% if ann.event %}
+            <small>📅 Related Event: {{ ann.event.title }}</small><br>
+          {% endif %}
+
+          <small class="text-muted">{{ ann.created_at|date:"M d, Y H:i" }}</small><br>
+
+          <a href="{% url 'church:edit_announcement' ann.pk %}" class="btn btn-sm btn-outline-secondary mt-2">✏️ Edit</a>
+          <a href="{% url 'church:delete_announcement' ann.pk %}" class="btn btn-sm btn-outline-danger mt-2">🗑️ Delete</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">No announcements yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

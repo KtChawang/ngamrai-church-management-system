@@ -1,0 +1,50 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<h2>📚 Reading Plan Archive</h2>
+
+{% for plan in plans %}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-light">
+            {{ plan.reading_date|date:"F d, Y" }} — <strong>{{ plan.title }}</strong>
+        </div>
+        <div class="card-body">
+            <p><strong>📖 Scripture:</strong> {{ plan.scripture_reference }}</p>
+
+            {% if plan.content %}
+                {% with "verse-data-"|add:forloop.counter as script_id %}
+                    {{ plan.content|json_script:script_id }}
+                    <div id="verse-block-{{ forloop.counter }}" class="mt-2"></div>
+
+                    <script>
+                        (function() {
+                            const data = JSON.parse(document.getElementById("{{ script_id }}").textContent);
+                            const container = document.getElementById("verse-block-{{ forloop.counter }}");
+                            if (data.verses && Array.isArray(data.verses)) {
+                                data.verses.forEach(v => {
+                                    const p = document.createElement("p");
+                                    p.innerHTML = `<strong>${v.verse}.</strong> ${v.text}`;
+                                    container.appendChild(p);
+                                });
+                            } else {
+                                container.innerHTML = "<p class='text-muted'>No verse details available.</p>";
+                            }
+                        })();
+                    </script>
+                {% endwith %}
+            {% else %}
+                <p class="text-muted">{{ plan.content|truncatewords:30 }}</p>
+            {% endif %}
+        </div>
+    </div>
+{% empty %}
+    <p>No reading plans available yet.</p>
+{% endfor %}
+
+<!-- ⬅️ Back Button -->
+<div class="mt-4">
+    <a href="javascript:history.back()" class="btn btn-secondary">⬅️ Back</a>
+</div>
+
+{% endblock %}

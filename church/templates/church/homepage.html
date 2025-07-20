@@ -1,0 +1,365 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% load tz %}
+
+{% block content %}
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body {
+    font-family:'Inter',sans-serif;
+    background:linear-gradient(to right,#2e003e,#4a0f6b); /* 🌌 Dark Purple Theme */
+    color:#eee;
+  }
+  h2.section-title{font-size:2rem;margin:40px 0 20px;text-align:center;color:#ddd}
+
+  .hero {
+    background:url('{% static "images/hero_church.jpg" %}') center/cover no-repeat;
+    min-height:20vh;
+    color:#fff;
+    text-shadow:1px 1px 4px rgba(0,0,0,.6);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:10px;
+    animation:fadeIn 2s ease
+  }
+  .hero h1 {
+    font-size:3rem;
+    margin-bottom:.0.5rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1px
+  }
+  .hero p {
+    font-size:1.3rem;
+    margin-bottom:1.5rem;
+    font-weight:500;
+    max-width:720px;
+    color:#ffd700;
+    text-shadow:none
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+  .card-links {
+    background:#fff;
+    padding:50px 40px;
+    max-width:1000px;
+    margin:-40px auto 0;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
+    text-align:center
+  }
+  .nav-inline {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:16px;
+    margin-top:28px
+  }
+  .nav-item {
+    background:#f5f5f5;
+    padding:14px 18px;
+    border-radius:10px;
+    box-shadow:0 4px 15px rgba(0,0,0,.05);
+    text-align:center;
+    min-width:160px
+  }
+  .nav-item h3 {
+    font-size:.95rem;
+    margin-bottom:6px;
+    color:#333;
+    font-weight:600
+  }
+  .nav-item a {
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:6px;
+    background:linear-gradient(to right,#007bff,#0056b3);
+    color:#fff;
+    font-weight:600;
+    font-size:.85rem;
+    text-decoration:none
+  }
+  .nav-item a:hover {
+    box-shadow:0 5px 15px rgba(0,123,255,.3);
+    transform:translateY(-2px)
+  }
+
+  .about {
+    max-width:900px;
+    margin:0 auto;
+    padding:0 20px;
+    text-align:center
+  }
+
+  /* ✅ Updated testimonial style */
+.testimonial {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to right, #a8e063, #56ab2f); /* Green gradient */
+  border-left: 4px solid #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  gap: 15px;
+  color: #ffffff; /* ✅ White text */
+}
+
+  .testimonial-img {
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    object-fit:cover;
+    border: 2px solid #fff;
+  }
+
+  .contact-wrap {
+    max-width:900px;
+    margin:0 auto;
+    padding:0 20px
+  }
+  iframe {
+    border:0;
+    width:100%;
+    height:250px;
+    border-radius:8px
+  }
+
+  .advertiser-section {
+    max-width:900px;
+    margin:50px auto;
+    padding:20px;
+    text-align:center;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 6px 24px rgba(0,0,0,.08)
+  }
+  .ad-carousel{position:relative;overflow:hidden}
+  .ad-slide{display:none;animation:fadeAd .6s ease-in-out}
+  .ad-slide.active{display:block}
+  .ad-slide img{max-width:100%;height:auto;border-radius:8px}
+  @keyframes fadeAd{from{opacity:0}to{opacity:1}}
+  .ad-dots {
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    margin-top:10px
+  }
+  .ad-dot {
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#ccc;
+    cursor:pointer;
+    transition:background .3s
+  }
+  .ad-dot.active{background:#007bff}
+  .ad-arrow {
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,.5);
+    color:#fff;
+    border:none;
+    padding:6px 10px;
+    border-radius:50%;
+    cursor:pointer
+  }
+  .ad-arrow:hover{background:rgba(0,0,0,.7)}
+  .ad-arrow.prev{left:10px}
+  .ad-arrow.next{right:10px}
+
+  footer {
+    margin:60px 0 20px;
+    text-align:center;
+    font-size:.9rem;
+    color:#ccc
+  }
+</style>
+
+<section class="hero">
+  <h1>Welcome to <span style="color:#ffd700">Ngamrai Church Management System</span> (NCMS)</h1>
+  <p>Your trusted platform for managing and growing your church community</p>
+</section>
+
+<!-- 🔔 Church Gallery Slider Section (New) -->
+<div class="church-gallery-slider" style="margin: 30px auto; max-width: 1200px; overflow: hidden;">
+  <div class="slider-track">
+    {% for image in gallery_images %}
+      <div class="slide">
+        <img src="{{ image.image.url }}" alt="{{ image.title }}" title="{{ image.title }}">
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.church-gallery-slider {
+  position: relative;
+  width: 100%;
+  background-color: #e6f2ff;
+  border-top: 3px solid #ccc;
+  border-bottom: 3px solid #ccc;
+  padding: 1rem 0;
+}
+
+.slider-track {
+  display: flex;
+  animation: slideScroll 20s linear infinite;
+  gap: 20px;
+}
+
+.slide img {
+  height: 200px;
+  width: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.5s;
+}
+
+.slide img:hover {
+  transform: scale(1.05);
+}
+
+@keyframes slideScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+</style>
+
+
+<div class="card-links" style="background-color: #4B0082; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+  <h1 style="color: white; text-shadow: 2px 2px 5px rgba(0,0,0,0.6);">Ngamrai Church Management System</h1>
+  <p class="tagline" style="color: white; font-size: 1.2rem; margin-top: 0.5rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.7);">
+    Manage your church activities seamlessly
+  </p>
+  <div class="nav-inline" style="margin-top: 1.5rem;">
+    <div class="nav-item" style="margin: 0.5rem; background: white; padding: 1rem; border-radius: 8px;">
+      <h3>Register Church</h3>
+      <a href="{% url 'church:register_church' %}">Register</a>
+    </div>
+    <div class="nav-item" style="margin: 0.5rem; background: white; padding: 1rem; border-radius: 8px;">
+      <h3>Admin Portal</h3>
+      <a href="{% url 'church:church_admin_login' %}">Login</a>
+    </div>
+    <div class="nav-item" style="margin: 0.5rem; background: white; padding: 1rem; border-radius: 8px;">
+      <h3>Join Member</h3>
+      <a href="{% url 'church:register_member' %}">Register</a>
+    </div>
+    <div class="nav-item" style="margin: 0.5rem; background: white; padding: 1rem; border-radius: 8px;">
+      <h3>Member Portal</h3>
+      <a href="{% url 'church:member_login' %}">Login</a>
+    </div>
+    <div class="nav-item" style="margin: 0.5rem; background: white; padding: 1rem; border-radius: 8px;">
+      <h3>Volunteer Portal</h3>
+      <a href="{% url 'church:volunteer_login' %}">Login</a>
+    </div>
+    <div class="nav-item" style="margin: 0.5rem; background: white; padding: 1rem; border-radius: 8px;">
+      <h3>Make Payment</h3>
+      <a href="{% url 'church:make_payment' %}">Pay Now</a>
+    </div>
+  </div>
+</div>
+
+<section class="about">
+  <h2 class="section-title">About NCMS</h2>
+  <p>The Ngamrai Church Management System (NCMS) is a simple yet powerful and intuitive platform designed to support churches in managing memberships, events, livestreams, chat rooms, and more with ease and clarity. It also includes a robust <strong>Stewardship Tracker</strong> to monitor church finances and a dedicated module to record <strong>Sunday Income Receipts</strong>, ensuring transparent and efficient financial management.</p>
+</section>
+
+{% if chairman_msg %}
+<section style="background:#87ceeb; padding: 3rem 1.5rem; border-radius: 16px; margin: 3rem auto; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); color: #000; text-align: center; max-width: 900px;">
+  <h2 style="font-size: 2rem; margin-bottom: 1rem; color: white;">{{ chairman_msg.title }}</h2>
+  {% if chairman_msg.photo %}
+    <img src="{{ chairman_msg.photo.url }}" alt="Chairman Photo"
+         style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 3px solid #1c2d59; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 1.2rem;">
+  {% endif %}
+  <p style="font-size: 1.1rem; line-height: 1.8; max-width: 800px; margin: auto;">
+    {{ chairman_msg.message }}
+  </p>
+</section>
+{% endif %}
+
+<section class="contact-wrap">
+  <h2 class="section-title">What People Are Saying</h2>
+  <div class="row gx-3 gy-3">
+    {% for t in testimonials %}
+      <div class="testimonial">
+        <img src="{{ t.photo.url }}" alt="{{ t.name }}" class="testimonial-img">
+        <p>“{{ t.message }}”<br><strong>- {{ t.name }}</strong></p>
+      </div>
+    {% empty %}
+      <p style="color: white;">No testimonials available.</p>
+    {% endfor %}
+  </div>
+
+  <!-- ✅ Pagination Links -->
+  {% if testimonials.has_other_pages %}
+    <div class="pagination" style="text-align: center; margin-top: 20px;">
+      {% if testimonials.has_previous %}
+        <a href="?page={{ testimonials.previous_page_number }}" style="margin: 0 10px; color: #fff;">&laquo; Previous</a>
+      {% endif %}
+      <span style="margin: 0 10px; color: #fff;">
+        Page {{ testimonials.number }} of {{ testimonials.paginator.num_pages }}
+      </span>
+      {% if testimonials.has_next %}
+        <a href="?page={{ testimonials.next_page_number }}" style="margin: 0 10px; color: #fff;">Next &raquo;</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+
+<section class="contact-wrap">
+  <h2 class="section-title">Get in Touch</h2>
+  <p><strong>Address:</strong> Lower Makhan, Near Kanglatongbi</p>
+  <p><strong>Email:</strong> ngam.ch17@gmail.com</p>
+  <p><strong>Phone:</strong> 8798008017/8920596488</p>
+  <iframe src="https://maps.google.com/maps?q=Lower%20Makhan%20NgamraiSoftTech&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen></iframe>
+</section>
+
+<section class="advertiser-section">
+  <h2 class="section-title">Sponsored</h2>
+  <div class="ad-carousel" id="adCarousel">
+    {% for ad in ads %}
+      <div class="ad-slide{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}">
+        <a href="{{ ad.link_url }}" target="_blank"><img src="{% static ad.image_path %}" alt="Ad"></a>
+      </div>
+    {% endfor %}
+    <button class="ad-arrow prev" aria-label="Previous ad">❮</button>
+    <button class="ad-arrow next" aria-label="Next ad">❯</button>
+  </div>
+  <div class="ad-dots" id="adDots">
+    {% for ad in ads %}<span class="ad-dot{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}"></span>{% endfor %}
+  </div>
+</section>
+
+<footer>
+  &copy; {% now "Y" %} Ngamrai Church Management System. All rights reserved.
+</footer>
+
+<script>
+(function(){
+  const slides = document.querySelectorAll('#adCarousel .ad-slide');
+  const dots = document.querySelectorAll('#adDots .ad-dot');
+  const prevBtn = document.querySelector('#adCarousel .prev');
+  const nextBtn = document.querySelector('#adCarousel .next');
+  if(slides.length <= 1) { prevBtn.style.display = nextBtn.style.display = 'none'; }
+  let idx = 0, timer;
+  function show(n){
+    slides[idx].classList.remove('active');
+    dots[idx]?.classList.remove('active');
+    idx = (n + slides.length) % slides.length;
+    slides[idx].classList.add('active');
+    dots[idx]?.classList.add('active');
+  }
+  function next(){ show(idx + 1); }
+  function prev(){ show(idx - 1); }
+  function reset(){ clearInterval(timer); timer = setInterval(next, 5000); }
+  nextBtn.addEventListener('click', ()=>{ next(); reset(); });
+  prevBtn.addEventListener('click', ()=>{ prev(); reset(); });
+  dots.forEach(dot => dot.addEventListener('click', e => { show(+e.target.dataset.index); reset(); }));
+  timer = setInterval(next, 5000);
+})();
+</script>
+{% endblock %}

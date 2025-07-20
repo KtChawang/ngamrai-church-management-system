@@ -1,0 +1,49 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <h4 class="mb-3">🧾 Staff Payments for {{ selected_month|date:"F Y" }}</h4>
+
+    <form method="get" class="mb-3">
+        <label>Select Month:</label>
+        <input type="month" name="month" value="{{ selected_month|date:'Y-m' }}">
+        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+    </form>
+
+    {% if payments %}
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered text-center align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>👤 Staff</th>
+                    <th>🎖️ Role</th>
+                    <th>💰 Amount</th>
+                    <th>📅 Paid On</th>
+                    <th>⏰ Due Date</th>
+                    <th>📝 Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td>{{ p.staff.full_name }}</td>
+                    <td>{{ p.staff.get_role_display }}</td>
+                    <td>₹{{ p.amount }}</td>
+                    <td>{{ p.paid_on|date:"d M, Y" }}</td>
+                    <td>{{ p.payment_month|date:"10 M, Y" }}</td>
+                    <td>{{ p.remarks|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="table-success fw-bold">
+                    <td colspan="2">Total Paid</td>
+                    <td colspan="4">₹{{ total_paid }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p class="text-muted">No payments recorded for this month.</p>
+    {% endif %}
+</div>
+{% endblock %}

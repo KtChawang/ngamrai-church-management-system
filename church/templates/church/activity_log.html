@@ -1,0 +1,24 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>📅 My Activity Log</h2>
+    {% if logs %}
+        <ul class="list-group">
+            {% for log in logs %}
+                <li class="list-group-item">
+                    <strong>{{ log.activity_type }}</strong><br>
+                    <small class="text-muted">{{ log.timestamp|date:"M d, Y H:i" }}</small>
+                    <p class="mb-0">{{ log.description }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No activities logged yet.</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="javascript:history.back()" class="btn btn-secondary">← Back</a>
+    </div>
+</div>
+{% endblock %}

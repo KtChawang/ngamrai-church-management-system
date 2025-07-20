@@ -1,0 +1,39 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>📖 Bible Reading Plans</h2>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+        <a href="{% url 'church:add_bible_reading' %}" class="btn btn-primary">➕ Add New Plan</a>
+    </div>
+
+    {% if object_list %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Reference</th>
+                    <th>Reading Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in object_list %}
+                    <tr>
+                        <td>{{ plan.title }}</td>
+                        <td>{{ plan.scripture_reference }}</td>
+                        <td>{{ plan.reading_date }}</td>
+                        <td>
+                            <a href="{% url 'church:edit_bible_reading' plan.pk %}" class="btn btn-sm btn-warning">✏️ Edit</a>
+                            <a href="{% url 'church:delete_bible_reading' plan.pk %}" class="btn btn-sm btn-danger">🗑️ Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No reading plans found.</p>
+    {% endif %}
+</div>
+{% endblock %}

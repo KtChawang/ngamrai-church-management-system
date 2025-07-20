@@ -1,0 +1,114 @@
+{% load receipt_extras %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sunday Income Receipts PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h2, h3, h4 { text-align: center; margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 6px; vertical-align: top; }
+        th { background-color: #f0f0f0; }
+        .summary td { font-weight: bold; }
+        .header-logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .header-logo img {
+            max-height: 80px;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 11px;
+            color: #555;
+        }
+        .phone-muted {
+            font-size: 11px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    {% if church and church.profile_picture %}
+    <div class="header-logo">
+        <img src="{{ church.profile_picture.url }}" alt="Church Logo">
+    </div>
+    {% endif %}
+
+    {% if church %}
+        <h2>{{ church.church_name }} - Sunday Receipts Report</h2>
+    {% else %}
+        <h2>Sunday Receipts Report</h2>
+    {% endif %}
+
+    <h3>{{ start_date }} to {{ end_date }}</h3>
+    <p>Category: {{ category|default:"All" }}</p>
+
+    {% for group in grouped_by_date %}
+        <h4>{{ group.date }}</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Thank You Message</th>
+                    <th>Received By</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for receipt in group.items %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        {% if receipt.source_type == 'online' %}
+                            {{ receipt.giver_name }}
+                        {% else %}
+                            {{ receipt.name }}
+                        {% endif %}
+                        {% if receipt.phone_number %}
+                            <br><span class="phone-muted">📞 {{ receipt.phone_number }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ receipt.get_category_display|default:receipt.category }}</td>
+                    <td>₹{{ receipt.amount }}</td>
+                    <td>{{ receipt.thank_you_message|default:"—" }}</td>
+                    <td>
+                        {% if receipt.source_type == 'online' %}
+                            {{ receipt.receiver_name|default:"—" }}
+                        {% else %}
+                            {{ receipt.receiver_name|default:"—" }}
+                        {% endif %}
+                    </td>
+                    <td>{{ receipt.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="summary">
+                    <td colspan="3"><strong>Total for {{ group.date }}</strong></td>
+                    <td colspan="4"><strong>₹{{ group.date_total|floatformat:2 }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    {% empty %}
+        <p>No receipts available for the selected filter.</p>
+    {% endfor %}
+
+    <!-- Grand total at the very end -->
+    <h3 style="text-align: right; margin-top: 30px;">
+        🧾 Grand Total: ₹{{ grand_total|floatformat:2 }}
+    </h3>
+
+    <p style="text-align:right; margin-top:20px;">Generated on {{ now }}</p>
+
+    <div class="footer-note">
+    © {{ now|date:"Y" }} All rights reserved – {{ church.church_name|default:"Your Church Name" }}. <br>
+    Powered by <strong>Ngamrai Church Management System</strong>
+    </div>
+</body>
+</html>

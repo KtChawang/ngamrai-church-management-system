@@ -1,0 +1,107 @@
+{% load tz %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Giving Receipt</title>
+    <style>
+        body {
+            width: 2.8in;
+            margin: 0 auto;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .logo {
+            height: 50px;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            margin: 10px 0;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
+        }
+
+        .signature {
+            margin-top: 20px;
+        }
+
+        .verify-link {
+            font-size: 10px;
+            margin-top: 4px;
+            word-break: break-word;
+        }
+
+        @media print {
+            button {
+                display: none;
+            }
+        }
+
+        .receipt-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 6px 0 4px 0;
+            text-align: center;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="center">
+    {% if church_logo %}
+        <img src="{{ church_logo }}" class="logo" alt="Church Logo">
+    {% endif %}
+    <div class="bold">{{ church_name|default:"Church Name Missing" }}</div>
+
+    <div class="receipt-title">Online Giving Receipt</div>
+
+    {% if receipt.created_at %}
+        <div>
+            {% timezone "Asia/Kolkata" %}
+                {{ receipt.created_at|date:"D, d M Y" }} - {{ receipt.created_at|time:"h:i A" }} IST
+            {% endtimezone %}
+        </div>
+    {% endif %}
+    <div class="bold">Receipt No: {{ receipt.receipt_number }}</div>
+</div>
+
+<div class="section">
+    <div><span class="bold">Giver Name:</span> {{ receipt.giver_name }}</div>
+    <div><span class="bold">Phone No:</span> {{ receipt.phone_number }}</div>
+    <div><span class="bold">Category:</span> {{ receipt.get_category_display }}</div>
+    <div><span class="bold">Amount:</span> ₹{{ receipt.amount }}</div>
+    <div><span class="bold">Transaction ID:</span> {{ receipt.upi_transaction_id }}</div>
+</div>
+
+<div class="section center">
+    <div class="bold">Total: ₹{{ receipt.amount }}</div>
+</div>
+
+<div class="center section">
+    <em>{{ receipt.thank_you_message|default:"Thank you for your generosity!" }}</em>
+</div>
+
+<div class="signature center">
+    <div>Received by:</div>
+    <div class="bold">{{ receipt.display_receiver }}</div>
+</div>
+
+<div class="center section">
+    <button onclick="window.history.back()">🔙 Back</button>
+    <button onclick="window.print()">🖨️ Print Receipt</button>
+</div>
+
+</body>
+</html>

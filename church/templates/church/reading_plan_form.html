@@ -1,0 +1,67 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>📖 Add / Edit Bible Reading Plan</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <label for="id_verse_text"><strong>Verse Text</strong></label>
+        <textarea name="verse_text" id="id_verse_text" class="form-control" rows="3">{{ form.initial.verse_text }}</textarea>
+
+        <label for="id_commentary_text" class="mt-2"><strong>Commentary</strong></label>
+        <textarea name="commentary_text" id="id_commentary_text" class="form-control" rows="3">{{ form.initial.commentary }}</textarea>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">💾 Save Plan</button>
+            <a href="{% url 'church:bible_reading_list' %}" class="btn btn-secondary">❌ Cancel</a>
+            <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-outline-dark">⬅️ Back to Dashboard</a>
+        </div>
+
+        <div class="mt-3">
+            <button type="button" class="btn btn-outline-info" onclick="fetchVerse()">📖 Fetch Verse (KJV)</button>
+            <button type="button" class="btn btn-outline-warning" onclick="fetchCommentary()">📘 View Commentary (MHC)</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function fetchVerse() {
+    const ref = document.getElementById("id_scripture_reference").value.trim();
+    if (ref) {
+        window.open(`https://bible-api.com/${encodeURIComponent(ref)}?translation=kjv`, "_blank");
+    } else {
+        alert("Please enter a scripture reference.");
+    }
+}
+
+function fetchCommentary() {
+    const ref = document.getElementById("id_scripture_reference").value.trim();
+    if (!ref) {
+        alert("Please enter a scripture reference.");
+        return;
+    }
+
+    const parts = ref.split(/[\s:]+/);
+    if (parts.length < 2) {
+        alert("Enter reference as 'Book Chapter:Verse' (e.g. John 3:16)");
+        return;
+    }
+
+    const book = parts[0].toLowerCase();
+    const chapter = parts[1].replace(/[^0-9]/g, '');
+    let verse = '';
+    if (parts.length >= 3) {
+        verse = parts[2].replace(/[^0-9]/g, '');
+    }
+
+    const url = `https://biblehub.com/commentaries/mhc/${book}/${chapter}.htm`;
+    window.open(url, "_blank");
+
+    if (verse) {
+        alert(`Tip: Use Ctrl+F and search for verse ${verse} on the commentary page.`);
+    }
+}
+</script>
+{% endblock %}

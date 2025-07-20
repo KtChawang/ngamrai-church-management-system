@@ -1,0 +1,51 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Top Header and Back to Dashboard -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-success">💰 Payments for {{ month }}</h4>
+        <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-outline-primary">
+            🏠 Back to Dashboard
+        </a>
+    </div>
+
+    {% if payments %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="table-success">
+                    <tr>
+                        <th>Staff</th>
+                        <th>Amount</th>
+                        <th>Payment Month</th>
+                        <th>Paid On</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.staff.full_name }}</td>
+                        <td>₹{{ payment.amount }}</td>
+                        <td>{{ payment.payment_month|date:"F Y" }}</td>
+                        <td>{{ payment.paid_on|date:"M d, Y" }}</td>
+                        <td>{{ payment.remarks|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted">No payments found for this month.</p>
+    {% endif %}
+
+    <!-- Back to Salary Management Table -->
+    <div class="mt-4">
+        <a href="{% url 'church:staff_salary_table' %}" class="btn btn-secondary">
+            ← Back to Salary Management
+        </a>
+    </div>
+
+</div>
+{% endblock %}

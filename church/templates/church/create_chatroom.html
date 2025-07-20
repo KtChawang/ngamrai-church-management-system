@@ -1,0 +1,23 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>➕ Create New Chat Room</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="id_name" class="form-label">Chat Room Name</label>
+      {{ form.name }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_livestream" class="form-label">Associated Livestream</label>
+      {{ form.livestream }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Chat Room</button>
+    <a href="{% url 'church:chatroom_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

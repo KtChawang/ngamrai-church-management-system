@@ -1,0 +1,23 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <a href="{% url 'church:member_dashboard' %}" class="btn btn-outline-secondary mb-3">← Back to Dashboard</a>
+
+    <h2>🎥 Watch Live</h2>
+
+    {% if stream %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h4>{{ stream.title }}</h4>
+                <p>{{ stream.description }}</p>
+                <div class="ratio ratio-16x9 mb-3">
+                    <iframe src="{{ stream.video_url }}" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning">No live stream available right now.</div>
+    {% endif %}
+</div>
+{% endblock %}

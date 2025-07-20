@@ -1,0 +1,106 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h2>Sunday Income Receipts</h2>
+
+<!-- Top Buttons -->
+<div class="d-flex justify-content-start align-items-center mb-3">
+    <a href="javascript:history.back()" class="btn btn-secondary">← Back</a>
+    <a href="{% url 'church:create_sunday_income_receipt' %}" class="btn btn-success ms-2">+ Add New Receipt</a>
+</div>
+
+<!-- Filter Form -->
+<form method="get" action="{% url 'church:all_receipts_pdf' %}" target="_blank" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label for="id_start_date" class="form-label">Start Date</label>
+        <input type="date" name="start_date" class="form-control" id="id_start_date">
+    </div>
+    <div class="col-md-3">
+        <label for="id_end_date" class="form-label">End Date</label>
+        <input type="date" name="end_date" class="form-control" id="id_end_date">
+    </div>
+    <div class="col-md-3">
+        <label for="id_category" class="form-label">Category</label>
+        <select name="category" class="form-select" id="id_category">
+            <option value="">All</option>
+            <option value="tithes">Tithes</option>
+            <option value="in_kind">In-kind</option>
+            <option value="thanksgiving">Thanksgiving</option>
+            <option value="offering">Offering</option>
+        </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Download Filtered PDF</button>
+    </div>
+</form>
+
+<!-- Receipts Table -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Thank You Message</th>
+            <th>Received By</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for receipt in receipts %}
+        <tr>
+            <td>
+                {{ receipt.name }}
+                {% if receipt.phone_number %}
+                    <br><small class="text-muted">📞 {{ receipt.phone_number }}</small>
+                {% endif %}
+            </td>
+            <td>{{ receipt.category }}</td>
+            <td>₹{{ receipt.amount|floatformat:2 }}</td>
+            <td>{{ receipt.thank_you_message|default:"—" }}</td>
+            <td>{{ receipt.receiver_name|default:"—" }}</td>
+            <td>{{ receipt.created_at|date:"M d, Y H:i" }}</td>
+            <td>
+                <a href="{% url 'church:print_sunday_income_receipt' receipt.id %}" class="btn btn-sm btn-primary">Print</a>
+                <form method="post" action="{% url 'church:delete_sunday_income_receipt' receipt.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this receipt?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">No Sunday receipts submitted yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+
+    <!-- Totals -->
+    <tfoot>
+        <tr class="fw-bold">
+            <td colspan="2" class="text-end">Total Tithes:</td>
+            <td colspan="5">₹{{ category_totals.tithes|floatformat:2 }}</td>
+        </tr>
+        <tr class="fw-bold">
+            <td colspan="2" class="text-end">Total In-kind:</td>
+            <td colspan="5">₹{{ category_totals.in_kind|floatformat:2 }}</td>
+        </tr>
+        <tr class="fw-bold">
+            <td colspan="2" class="text-end">Total Thanksgiving:</td>
+            <td colspan="5">₹{{ category_totals.thanksgiving|floatformat:2 }}</td>
+        </tr>
+        <tr class="fw-bold">
+            <td colspan="2" class="text-end">Total Offering:</td>
+            <td colspan="5">₹{{ category_totals.offering|floatformat:2 }}</td>
+        </tr>
+        <tr class="fw-bold text-success">
+            <td colspan="2" class="text-end">GRAND TOTAL:</td>
+            <td colspan="5">₹{{ grand_total|floatformat:2 }}</td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Bottom Back Button -->
+<a href="javascript:history.back()" class="btn btn-secondary mt-3">← Back</a>
+{% endblock %}

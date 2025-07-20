@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt Verification</title>
+</head>
+<body>
+    <h2>Receipt Verified ✅</h2>
+    <p><strong>Receipt Number:</strong> {{ receipt.receipt_number }}</p>
+    <p><strong>Name:</strong> {{ receipt.name }}</p>
+    <p><strong>Category:</strong> {{ receipt.category }}</p>
+    <p><strong>Amount:</strong> ₦{{ receipt.amount }}</p>
+    <p><strong>Received by:</strong> {{ receipt.receiver_name }}</p>
+    <p><strong>Date:</strong> {{ receipt.created_at }}</p>
+</body>
+</html>

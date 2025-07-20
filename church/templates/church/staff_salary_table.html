@@ -1,0 +1,78 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ request.user.churchadminprofile.church }} - Staff Salary Table ({{ year }})</h2>
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <form method="get" class="d-flex align-items-center gap-3">
+            <div>
+                <label for="year">Select Year:</label>
+                <select name="year" id="year" onchange="this.form.submit()" class="form-select d-inline w-auto ms-2">
+                    {% for y in year_range %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'church:add_staff_payment' %}" class="btn btn-success">➕ Add Staff Payment</a>
+            <form method="get" action="{% url 'church:staff_salary_pdf' %}" target="_blank">
+                <input type="hidden" name="year" value="{{ year }}">
+                <button type="submit" class="btn btn-danger">
+                    📄 Download PDF
+                </button>
+            </form>
+            <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>Staff</th>
+                <th>Role</th>
+                {% for month in month_names %}
+                    <th>{{ month|slice:":3" }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in staff_data %}
+                <tr>
+                    <td>{{ row.staff.full_name }}</td>
+                    <td>{{ row.staff.role|title }}</td>
+                    {% for m in month_range %}
+                        {% with payment=row.payments|get_item:m %}
+                            <td class="text-center">
+                                {% if payment %}
+                                    ₹{{ payment.amount|floatformat:0 }}<br>
+                                    <a href="{% url 'church:edit_staff_payment' payment.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a href="{% url 'church:delete_staff_payment' payment.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this payment?')">Delete</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        {% endwith %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="table-warning text-center">
+                <th colspan="2">Total (₹)</th>
+                {% for m in month_range %}
+                    <th>₹{{ monthly_totals|get_item:m|default:0|floatformat:0 }}</th>
+                {% endfor %}
+            </tr>
+            <tr class="table-success text-center">
+                <th colspan="{{ 2|add:month_range|length }}">Grand Total</th>
+                <th colspan="2">₹{{ grand_total|floatformat:0 }}</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

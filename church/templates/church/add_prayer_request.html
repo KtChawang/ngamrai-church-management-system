@@ -1,0 +1,13 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>➕ Post a Prayer Request</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">🙏 Submit</button>
+        <a href="{% url 'church:member_dashboard' %}" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+    </form>
+</div>
+{% endblock %}

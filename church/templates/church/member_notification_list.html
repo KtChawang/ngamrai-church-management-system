@@ -1,0 +1,22 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>📢 All Notifications</h2>
+        <a href="{% url 'church:member_dashboard' %}" class="btn btn-sm btn-secondary">← Back to Dashboard</a>
+    </div>
+
+    <ul class="list-group mt-3">
+        {% for announcement in notifications %}
+        <li class="list-group-item">
+            <h5 class="mb-1">{{ announcement.title }}</h5>
+            <p class="mb-1">{{ announcement.content }}</p>
+            <small class="text-muted">🕒 {{ announcement.created_at|date:"M d, Y H:i" }}</small>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No notifications found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

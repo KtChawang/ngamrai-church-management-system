@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ society_name }} Members</title>
+    <style>
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url("{% static 'fonts/DejaVuSans.ttf' %}") format('truetype');
+        }
+
+        @page {
+            size: A4;
+            margin: 30px 40px 100px 40px;
+
+            @bottom-center {
+                content: "© {{ now.year }} {{ church_name }}. All rights reserved.";
+                font-size: 10px;
+                color: #888;
+            }
+        }
+
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 12px;
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        .church-logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .church-logo img {
+            max-height: 80px;
+            max-width: 250px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    {% if church_image_url %}
+    <div class="church-logo">
+        <img src="{{ church_image_url }}" alt="Church Logo">
+    </div>
+    {% endif %}
+
+    <h2>{{ church_name }}</h2>
+    <h3>{{ society_name }} Member List</h3>
+    <p><strong>Generated:</strong> {{ now }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Gender</th>
+                <th>Phone</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ member.first_name }} {{ member.last_name }}</td>
+                <td>{{ member.sex|default:"-" }}</td>
+                <td>{{ member.phone_number|default:"-" }}</td>
+                <td>{{ member.email|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No members found in this society.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

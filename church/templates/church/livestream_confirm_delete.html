@@ -1,0 +1,14 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3>🗑️ Confirm Delete</h3>
+    <p>Are you sure you want to delete the livestream titled <strong>{{ object.title }}</strong> scheduled on <strong>{{ object.start_time }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <a href="{% url 'church:livestream_list' %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    </form>
+</div>
+{% endblock %}

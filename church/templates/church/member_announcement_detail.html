@@ -1,0 +1,25 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4>{{ announcement.title }}</h4>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Posted on: {{ announcement.created_at|date:"M d, Y H:i" }}</p>
+            <hr>
+            <p>{{ announcement.content|linebreaks }}</p>
+
+            {% if announcement.is_notification %}
+                <span class="badge bg-warning text-dark">🔔 Notification</span>
+            {% else %}
+                <span class="badge bg-success">📢 Public</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="mt-3">
+        <a href="{% url 'church:member_announcements' %}" class="btn btn-secondary">← Back to Announcements</a>
+    </div>
+</div>
+{% endblock %}

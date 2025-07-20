@@ -1,0 +1,11 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>🎉 Member Registration Successful</h2>
+    <p>The new member has been successfully registered in the system.</p>
+
+    <a href="{% url 'church:register_member' %}" class="btn btn-primary mt-3">Register Another Member</a>
+    <a href="{% url 'church:homepage' %}" class="btn btn-secondary mt-3 ml-2">Back to Homepage</a>
+</div>
+{% endblock %}

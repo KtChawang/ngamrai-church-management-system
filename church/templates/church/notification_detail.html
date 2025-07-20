@@ -1,0 +1,17 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h3>🔔 Notification Details</h3>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Message:</strong> {{ notification.message }}</p>
+            {% if notification.event %}
+                <p><strong>Event:</strong> {{ notification.event.title }}</p>
+                <p><strong>Date & Time:</strong> {{ notification.event.start_datetime|date:"M d, Y H:i" }}</p>
+            {% endif %}
+            <p class="text-muted">Received {{ notification.created_at|timesince }} ago</p>
+        </div>
+    </div>
+    <a href="{% url 'church:all_notifications' %}" class="btn btn-secondary mt-3">← Back to Notifications</a>
+</div>
+{% endblock %}

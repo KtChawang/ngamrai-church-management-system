@@ -1,0 +1,132 @@
+{% load tz %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sunday Income Receipt</title>
+    <style>
+        body {
+            width: 2.8in;
+            margin: 0 auto;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .logo {
+            height: 50px;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            margin: 10px 0;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
+        }
+
+        .signature {
+            margin-top: 20px;
+        }
+
+        .barcode {
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .verify-link {
+            font-size: 10px;
+            margin-top: 4px;
+            word-break: break-word;
+        }
+
+        @media print {
+            button {
+                display: none;
+            }
+        }
+
+        .receipt-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 6px 0 4px 0;
+            text-align: center;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="center">
+        {% if receipt.church.profile_picture %}
+            <img src="{{ receipt.church.profile_picture.url }}" class="logo" alt="Church Logo">
+        {% endif %}
+        <div class="bold">{{ receipt.church.church_name|default:"Church Name Missing" }}</div>
+
+        <div class="receipt-title">Sunday Income Receipt</div>
+
+        {% if receipt.created_at %}
+            <div>
+                {% timezone "Asia/Kolkata" %}
+                    {{ receipt.created_at|date:"D, d M Y" }} - {{ receipt.created_at|time:"h:i A" }} IST
+                {% endtimezone %}
+            </div>
+        {% endif %}
+        <div class="bold">Receipt No: {{ receipt.receipt_number }}</div>
+    </div>
+
+    <div class="barcode">
+        {% if receipt.qr_code %}
+            <img src="{{ receipt.qr_code.url }}" alt="QR Code" style="height: 60px; width: 60px;">
+        {% else %}
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data={{ request.scheme }}://{{ request.get_host }}{% url 'church:verify_receipt' receipt.receipt_number %}" alt="QR Code" style="height: 60px; width: 60px;">
+        {% endif %}
+        <p style="font-size: 10px;">Scan to verify this receipt</p>
+        <div class="verify-link">
+            Verify at: {{ request.scheme }}://{{ request.get_host }}{% url 'church:verify_receipt' receipt.receipt_number %}
+        </div>
+    </div>
+
+    <div class="section">
+        <div><span class="bold">Name:</span> {{ receipt.name }}</div>
+        {% if receipt.phone_number %}
+            <div><span class="bold">Phone:</span> {{ receipt.phone_number }}</div>
+        {% endif %}
+        <div><span class="bold">Category:</span> {{ receipt.category }}</div>
+        <div><span class="bold">Amount:</span> ₹{{ receipt.amount }}</div>
+    </div>
+
+    <div class="section center">
+        <div class="bold">Total: ₹{{ receipt.amount }}</div>
+    </div>
+
+    <div class="center section">
+        <em>{{ receipt.thank_you_message|default:"Thank you for your generosity!" }}</em>
+    </div>
+
+    <div class="signature center">
+        <div>Received by:</div>
+        {% if receipt.receiver_name %}
+            <div class="bold">{{ receipt.receiver_name }}</div>
+        {% else %}
+            <div class="bold">{{ receipt.church.church_name|default:"—" }}</div>
+        {% endif %}
+        {% if receipt.digital_signature %}
+            <img src="{{ receipt.digital_signature.url }}" alt="Signature" style="height: 40px; margin-top: 5px;">
+        {% endif %}
+    </div>
+
+    <div class="center section">
+        <a href="{% url 'church:sunday_income_form' %}" class="btn">← Add Another Income</a>
+        <button onclick="window.print()">🖨️ Print Receipt</button>
+    </div>
+
+</body>
+</html>

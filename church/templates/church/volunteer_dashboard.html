@@ -1,0 +1,350 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    body            {background:linear-gradient(to right,#f3f4f6,#e0e7ff);}
+    .card           {border-radius:12px;transition:box-shadow .3s ease;}
+    .card:hover     {box-shadow:0 8px 24px rgba(0,0,0,.05);}
+    .card-header    {font-weight:600;}
+    .list-group-item{background:transparent;}
+    .list-group-item a{display:block;width:100%;}
+    .container-fluid{
+        background:rgba(255,255,255,.9);
+        padding:40px 30px;
+        border-radius:16px;
+        box-shadow:0 8px 40px rgba(0,0,0,.03);
+    }
+    .event-time {font-size:.85rem;color:#555;}
+</style>
+
+<div class="container-fluid mt-5">
+  <div class="row">
+
+    {# ---------- Sidebar -------------------------------------------------- #}
+    <div class="col-md-3 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          {% if church.profile_picture %}
+            <img src="{{ church.profile_picture.url }}" class="img-fluid rounded-circle mb-2" style="max-height:120px;">
+          {% else %}
+            <img src="{% static 'img/default_church.png' %}" class="img-fluid rounded-circle mb-2" style="max-height:120px;">
+          {% endif %}
+          <h5 class="fw-bold text-primary mt-2">{{ church.church_name }}</h5>
+          <p class="text-muted">{{ church.email_address }}</p>
+        </div>
+
+        <ul class="list-group list-group-flush mt-3">
+          <li class="list-group-item"><a href="{% url 'church:church_events' %}" class="text-decoration-none text-dark">📅 Manage Events</a></li>
+          <li class="list-group-item"><a href="{% url 'church:livestream_list' %}" class="text-decoration-none text-dark">🎥 Manage Live Streams</a></li>
+          <li class="list-group-item"><a href="{% url 'church:chatroom_list' %}" class="text-decoration-none text-dark">💬 Manage Chat Rooms</a></li>
+          <li class="list-group-item"><a href="{% url 'church:church_announcement_list' %}" class="text-decoration-none text-dark">📢 Manage Announcements</a></li>
+
+          {% if perms.church.moderate_message %}
+            <li class="list-group-item">
+              <a href="{% url 'church:volunteer_member_chat_moderation' %}" class="text-decoration-none text-danger">🛡️ Moderate Member Chat</a>
+            </li>
+          {% endif %}
+
+          <li class="list-group-item text-center">
+            <form method="post" action="{% url 'church:church_admin_logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger mt-2 w-100">🚪 Logout</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    {# ---------- Centre Column ------------------------------------------- #}
+    <div class="col-md-6">
+      <div class="row mb-4">
+
+        {# Recent announcements ------------------------------------------ #}
+        <div class="col-md-12 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">📢 Recent Announcements</div>
+            <ul class="list-group list-group-flush" style="max-height:300px; overflow-y:auto;">
+              {% for ann in recent_announcements %}
+                <li class="list-group-item">
+                  <strong>{{ ann.title }}</strong><br>
+                  <p class="mb-1 text-muted">{{ ann.content|truncatewords:25 }}</p>
+                  <small class="text-muted">{{ ann.created_at|date:"M d, Y H:i" }}</small><br>
+                  {% if ann.is_notification %}
+                    <span class="badge bg-warning text-dark mt-1">🔔 Notification</span>
+                  {% else %}
+                    <span class="badge bg-success mt-1">📢 Public</span>
+                  {% endif %}
+                </li>
+              {% empty %}
+                <li class="list-group-item text-muted">No announcements available.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        {# Upcoming events ----------------------------------------------- #}
+        <div class="col-md-12 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">📅 Upcoming Events</div>
+            <ul class="list-group list-group-flush">
+              {% for event in upcoming_events %}
+                <li class="list-group-item">
+                  <strong>{{ event.title }}</strong><br>
+                  <span class="event-time">
+                    {{ event.start_datetime|date:"D, M d, Y H:i" }} — {{ event.end_datetime|date:"H:i" }}<br>
+                    📍 {{ event.location }}
+                  </span>
+                </li>
+              {% empty %}
+                <li class="list-group-item text-muted">No upcoming events.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        {# Upcoming streams ---------------------------------------------- #}
+        <div class="col-md-12 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">🎥 Upcoming Live Streams</div>
+            <ul class="list-group list-group-flush">
+              {% for stream in upcoming_streams %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ stream.title }}
+                  <span class="badge bg-success">{{ stream.date|date:"M d, Y H:i" }}</span>
+                </li>
+              {% empty %}
+                <li class="list-group-item text-muted">No upcoming streams.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        {# Active Chat Rooms --------------------------------------------- #}
+        <div class="col-md-12 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+              <span>💬 Active Chat Rooms</span>
+              {% if user.is_church_admin or user.volunteer.can_manage_chats %}
+                <a href="{% url 'church:create_chatroom' %}" class="btn btn-sm btn-outline-light">➕ Create</a>
+              {% endif %}
+            </div>
+
+            <div class="card-body table-responsive p-0">
+              {% if active_chat_rooms %}
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Chat Room Name</th>
+                      <th>Livestream</th>
+                      <th class="text-center">Messages</th>
+                      <th>Last Activity</th>
+                      <th class="text-center">Open</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for room in active_chat_rooms %}
+                      {% with last_msg=room.messages.last %}
+                        <tr>
+                          <td>{{ room.name }}</td>
+                          <td>{% if room.livestream %}{{ room.livestream.title }}{% else %}—{% endif %}</td>
+                          <td class="text-center">{{ room.messages.count }}</td>
+                          <td>{% if last_msg %}{{ last_msg.sent_at|date:"M d, Y H:i" }}{% else %}—{% endif %}</td>
+                          <td class="text-center">
+                            <a href="{% url 'church:chatroom_detail' room.id %}" class="btn btn-sm btn-outline-primary">💬</a>
+                          </td>
+                        </tr>
+                      {% endwith %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <p class="text-muted m-3 text-center">No active chat rooms.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {# ---------- Member Chat ---------------------------------------- #}
+        <div class="col-md-12 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+              💬 Member Chat
+              {% if perms.church.moderate_message %}
+                <span class="badge bg-light text-danger">Moderator</span>
+              {% endif %}
+            </div>
+
+            <form id="chat-form" method="post" action="{% url 'church:member_chat_post' %}" class="d-flex border-bottom p-3 gap-2">
+              {% csrf_token %}
+              <textarea id="chat-input" name="content" rows="1" class="form-control" placeholder="Type a message…" required></textarea>
+              <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+
+            {% if is_volunteer or perms.church.moderate_message %}
+            <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom">
+              <div class="form-check m-0">
+                <input class="form-check-input" type="checkbox" id="select-all">
+                <label class="form-check-label small" for="select-all">Select all</label>
+              </div>
+              <button id="delete-selected" class="btn btn-sm btn-outline-danger" disabled>Delete selected</button>
+            </div>
+            {% endif %}
+
+            <ul id="chat-messages" class="list-group list-group-flush" style="max-height:300px; overflow-y:auto;">
+              {% for msg in member_chats %}
+              <li class="list-group-item" id="msg-row-{{ msg.id }}">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="d-flex align-items-start gap-2">
+                    {% if is_volunteer or perms.church.moderate_message %}
+                      <input class="form-check-input msg-select mt-1" type="checkbox" value="{{ msg.id }}">
+                    {% endif %}
+                    <div>
+                      <strong>{{ msg.sender.first_name }} {{ msg.sender.last_name }}</strong><br>
+                      <p class="mb-1">{{ msg.content|linebreaksbr }}</p>
+                      <small class="text-muted">{{ msg.sent_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                  </div>
+
+                  {% if is_volunteer or perms.church.moderate_message %}
+                  <!-- ★ change: give form a class & data‑id for JS -->
+                  <form method="post"
+                        action="{% url 'church:delete_member_chat_message' msg.id %}"
+                        class="delete-single-form"
+                        data-id="{{ msg.id }}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger ms-2">🗑️</button>
+                  </form>
+                  {% endif %}
+                </div>
+              </li>
+              {% empty %}
+              <li class="list-group-item text-muted text-center">No member‑chat messages yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {# ---------- Right Sidebar ------------------------------------------ #}
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white text-center">📊 Church Statistics</div>
+        <div class="card-body">
+          <h6 class="text-muted">👥 Member Categories</h6>
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item d-flex justify-content-between">
+              Men Society <span class="badge bg-secondary">{{ category_stats|dict_get:"Men Society"|default:"0" }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              Women Society <span class="badge bg-secondary">{{ category_stats|dict_get:"Women Society"|default:"0" }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              Youth Society <span class="badge bg-secondary">{{ category_stats|dict_get:"Youth Society"|default:"0" }}</span>
+            </li>
+          </ul>
+
+          <h6 class="text-muted mt-3">🙋‍♂️ Total Volunteers</h6>
+          <div class="alert alert-info text-center fw-bold">{{ total_volunteers }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% if is_volunteer or perms.church.moderate_message %}
+<script>
+/* ---------- CSRF helper ---------- */
+function getCookie(name){
+  const v=`; ${document.cookie}`.split(`; ${name}=`);return v.length===2? v.pop().split(';').shift():null;}
+const csrftoken=getCookie('csrftoken');
+
+/* ---------- base delete URL ---------- */
+const deleteUrlBase = "{% url 'church:delete_member_chat_message' 0 %}".replace('0/','');
+
+/* helper to call the endpoint then remove row */
+function deleteMessage(id){
+  fetch(deleteUrlBase+id+'/',{method:'POST',headers:{'X-CSRFToken':csrftoken}})
+    .then(r=>{if(r.ok){document.getElementById('msg-row-'+id)?.remove();setBtn();}});
+}
+
+/* ---------- Bulk delete ---------- */
+const selectAll=document.getElementById('select-all');
+const delBtn=document.getElementById('delete-selected');
+function setBtn(){delBtn && (delBtn.disabled=!document.querySelector('.msg-select:checked'));}
+
+if(selectAll){
+  selectAll.onchange=e=>{
+    document.querySelectorAll('.msg-select').forEach(cb=>cb.checked=e.target.checked);
+    setBtn();
+  };
+  document.addEventListener('change',e=>{
+    if(e.target.classList.contains('msg-select')) setBtn();
+  });
+  delBtn.onclick=()=>{
+    const ids=[...document.querySelectorAll('.msg-select:checked')].map(cb=>cb.value);
+    if(!ids.length||!confirm(`Delete ${ids.length} message(s)?`)) return;
+    ids.forEach(deleteMessage);
+    selectAll.checked=false; setBtn();
+  };
+}
+
+/* ---------- delegate single‑delete ---------- */
+document.addEventListener('submit',e=>{
+  if(e.target.classList.contains('delete-single-form')){
+    e.preventDefault();
+    deleteMessage(e.target.dataset.id);
+  }
+});
+
+/* ---------- Load messages ---------- */
+function loadMessages(){
+  fetch("{% url 'church:member_chat_fetch' %}")
+    .then(r=>r.json()).then(d=>{
+      const ul=document.getElementById('chat-messages'); ul.innerHTML='';
+      d.messages.forEach(m=>{
+        ul.insertAdjacentHTML('beforeend',`
+<li class="list-group-item" id="msg-row-${m.id}">
+  <div class="d-flex justify-content-between align-items-start">
+    <div class="d-flex align-items-start gap-2">
+      {% if is_volunteer or perms.church.moderate_message %}
+      <input class="form-check-input msg-select mt-1" type="checkbox" value="${m.id}">
+      {% endif %}
+      <div>
+        <strong>${m.sender}</strong><br>
+        <p class="mb-1">${m.content.replace(/\\n/g,'<br>')}</p>
+        <small class="text-muted">${m.ago}</small>
+      </div>
+    </div>
+    {% if is_volunteer or perms.church.moderate_message %}
+    <form class="delete-single-form" data-id="${m.id}">
+      <button type="submit" class="btn btn-sm btn-outline-danger ms-2">🗑️</button>
+    </form>
+    {% endif %}
+  </div>
+</li>`);});
+      setBtn();
+  });
+}
+loadMessages();
+
+/* ---------- Send message ---------- */
+const chatForm=document.getElementById('chat-form');
+const chatInput=document.getElementById('chat-input');
+chatInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();chatForm.requestSubmit();}
+});
+chatForm.addEventListener('submit',e=>{
+  e.preventDefault();
+  const fd=new FormData(chatForm);
+  fetch(chatForm.action,{method:'POST',headers:{'X-CSRFToken':csrftoken},body:fd})
+    .then(r=>r.ok?loadMessages():alert('Send failed'))
+    .then(()=>{chatInput.value='';});
+});
+</script>
+{% endif %}
+{% endblock %}

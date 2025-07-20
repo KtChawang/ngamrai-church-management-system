@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Stewardship Report</title>
+    <style>
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url("{% static 'fonts/DejaVuSans.ttf' %}") format('truetype');
+        }
+
+        @page {
+            size: A4;
+            margin: 30px 40px 100px 40px; /* reduced top margin */
+
+            @bottom-center {
+                content: "© {{ now.year }} {{ church_name }}. All rights reserved. Powered by Ngamrai Church Management System";
+                font-size: 10px;
+                color: #888;
+            }
+        }
+
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 12px;
+        }
+
+        h2, h3, h4 {
+            text-align: center;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .church-logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .church-logo img {
+            max-height: 80px;
+            max-width: 250px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        p {
+            margin: 2px 0;
+        }
+    </style>
+</head>
+<body>
+
+    {% if church_image_url %}
+    <div class="church-logo">
+        <img src="{{ church_image_url }}" alt="Church Logo">
+    </div>
+    {% endif %}
+
+    <h2>Stewardship Report</h2>
+
+    {% if church_name %}
+        <h4>{{ church_name }}</h4>
+    {% endif %}
+
+    <p><strong>Generated:</strong> {{ now }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td>{{ record.date }}</td>
+                    <td>{{ record.get_transaction_type_display }}</td>
+                    <td>{{ record.get_category_display }}</td>
+                    <td>₹{{ record.amount|floatformat:"2" }}</td>
+                    <td>{{ record.description|default:"-" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Opening Balance: ₹{{ opening_balance|floatformat:"2" }}</h4>
+    <h4>Total Income: ₹{{ total_income|floatformat:"2" }}</h4>
+    <h4>Total Expenditure: ₹{{ total_expenditure|floatformat:"2" }}</h4>
+    <h4>Current Balance: ₹{{ current_balance|floatformat:"2" }}</h4>
+
+</body>
+</html>

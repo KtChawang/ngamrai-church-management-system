@@ -1,0 +1,33 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            ✏️ Edit Volunteer
+        </div>
+        <div class="card-body">
+            <!-- Volunteer Edit Form -->
+            <form method="post" class="mb-4">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-success">💾 Save Changes</button>
+                    <a href="{% url 'church:list_volunteers' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+
+            <hr class="my-4">
+
+            <!-- Volunteer Delete Form -->
+            <div class="alert alert-danger">
+                <h5 class="text-danger">⚠️ Danger Zone</h5>
+                <p>Deleting this volunteer is permanent and cannot be undone.</p>
+                <form method="post" action="{% url 'church:delete_volunteer' volunteer.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">🗑️ Delete Volunteer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

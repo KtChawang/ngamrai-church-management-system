@@ -1,0 +1,24 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>🙏 All Prayer Requests</h2>
+    <div class="d-flex justify-content-between mb-3">
+        <a href="{% url 'church:member_dashboard' %}" class="btn btn-outline-dark">⬅ Back to Dashboard</a>
+        <a href="{% url 'church:add_prayer_request' %}" class="btn btn-primary">➕ Add Prayer Request</a>
+    </div>
+
+    <ul class="list-group">
+        {% for prayer in prayers %}
+            <li class="list-group-item">
+                <strong>{{ prayer.title }}</strong><br>
+                <small class="text-muted">by {{ prayer.member.first_name }} on {{ prayer.created_at|date:"M d, Y H:i" }}</small>
+                <p>{{ prayer.content }}</p>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">No prayer requests found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

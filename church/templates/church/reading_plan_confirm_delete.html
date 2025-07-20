@@ -1,0 +1,25 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            ⚠️ Confirm Deletion
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete the following Bible reading plan?</p>
+            <h5 class="text-danger">{{ object.title }}</h5>
+            <p><strong>Date:</strong> {{ object.reading_date }}</p>
+            <p><strong>Reference:</strong> {{ object.scripture_reference }}</p>
+            <p><strong>Content:</strong> {{ object.content|truncatewords:30 }}</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">🗑️ Confirm Delete</button>
+                <a href="{% url 'church:bible_reading_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

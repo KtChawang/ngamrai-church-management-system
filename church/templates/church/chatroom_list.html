@@ -1,0 +1,77 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <!-- Back Button -->
+  <div class="mb-3">
+    {% if request.user.is_church_admin %}
+      <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-outline-secondary">🔙 Back to Dashboard</a>
+    {% elif request.user.is_volunteer %}
+      <a href="{% url 'church:volunteer_dashboard' %}" class="btn btn-outline-secondary">🔙 Back to Dashboard</a>
+    {% elif request.user.member %}
+      <a href="{% url 'church:member_dashboard' %}" class="btn btn-outline-secondary">🔙 Back to Dashboard</a>
+    {% else %}
+      <a href="/" class="btn btn-outline-secondary">🔙 Back</a>
+    {% endif %}
+  </div>
+
+  <!-- Heading + optional “Create room” -->
+  <div class="d-flex justify-content-between align-items-center">
+    <h2>📺 Manage Chat Rooms</h2>
+    {% if can_manage %}
+      <a href="{% url 'church:create_chatroom' %}" class="btn btn-success">
+        ➕ Create Chat Room
+      </a>
+    {% endif %}
+  </div>
+
+  {% if chatrooms %}
+  <table class="table table-bordered table-hover mt-3">
+    <thead class="table-light">
+      <tr>
+        <th>Chat Room Name</th>
+        <th>Livestream</th>
+        <th>Messages</th>
+        <th>Last Activity</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for room in chatrooms %}
+      <tr>
+        <td>{{ room.name }}</td>
+        <td>{{ room.livestream.title }}</td>
+        <td>{{ room.messages.count }}</td>
+        <td>
+          {% with last_msg=room.messages.last %}
+            {% if last_msg %}
+              {{ last_msg.sent_at|date:"M d, Y H:i" }}
+            {% else %}
+              —
+            {% endif %}
+          {% endwith %}
+        </td>
+        <td>
+          <a href="{% url 'church:chatroom_detail' room.pk %}"
+             class="btn btn-sm btn-info" title="View chat">View</a>
+          {% if can_manage %}
+            <a href="{% url 'church:delete_chatroom' room.pk %}"
+               class="btn btn-sm btn-danger"
+               title="Delete chatroom"
+               onclick="return confirm('Are you sure you want to delete this chat room?');">
+               Delete
+            </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <div class="alert alert-warning mt-4 text-center">
+      No chat rooms available.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

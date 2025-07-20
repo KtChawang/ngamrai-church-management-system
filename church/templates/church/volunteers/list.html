@@ -1,0 +1,52 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 Volunteer List</h2>
+        {% if request.user.churchadminprofile %}
+            <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-outline-secondary">← Back</a>
+        {% elif request.user.volunteer %}
+            <a href="{% url 'church:volunteer_dashboard' %}" class="btn btn-outline-secondary">← Back</a>
+        {% else %}
+            <a href="/" class="btn btn-outline-secondary">← Back</a>
+        {% endif %}
+    </div>
+
+    {% if volunteers %}
+        <table class="table table-striped table-bordered mt-4">
+            <thead class="table-primary">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for volunteer in volunteers %}
+                    <tr>
+                        <td>{{ volunteer.user.get_full_name }}</td>
+                        <td>{{ volunteer.user.email }}</td>
+                        <td>{{ volunteer.user.phone_number }}</td>
+                        <td>
+                            <a href="{% url 'church:edit_volunteer' volunteer.id %}" class="btn btn-sm btn-outline-primary">
+                                ✏️ Edit
+                            </a>
+                            <form method="post" action="{% url 'church:delete_volunteer' volunteer.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this volunteer?');">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            No volunteers found. You can <a href="{% url 'church:create_volunteer' %}">create one here</a>.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

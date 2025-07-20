@@ -1,0 +1,55 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h3 class="mb-4 text-primary">✏️ Edit Staff Payment</h3>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="form-label">Staff:</label>
+                <input type="text" class="form-control" value="{{ form.instance.staff }}" disabled>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.amount.id_for_label }}">Amount:</label>
+                {{ form.amount }}
+                {% for error in form.amount.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.payment_month.id_for_label }}">Payment Month:</label>
+                {{ form.payment_month }}
+                {% for error in form.payment_month.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.remarks.id_for_label }}">Remarks:</label>
+                {{ form.remarks }}
+                {% for error in form.remarks.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">💾 Save Changes</button>
+                <a href="{% url 'church:staff_salary_table' %}" class="btn btn-secondary">← Cancel</a>
+
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

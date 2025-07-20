@@ -1,0 +1,55 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Church Staff Payment Records</h3>
+
+    <div class="mb-3">
+        <a href="{% url 'church:add_staff_payment' %}" class="btn btn-primary">➕ Add Staff Payment</a>
+
+        <a href="{% url 'church:church_admin_dashboard' %}" class="btn btn-secondary float-end">⬅ Back to Dashboard</a>
+
+
+    {% if payments %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Photo</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Monthly Salary</th>
+                        <th>Paid Amount</th>
+                        <th>Payment Month</th>
+                        <th>Paid On</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>
+                            {% if payment.staff.photo %}
+                                <img src="{{ payment.staff.photo.url }}" alt="Photo" width="50" height="50" class="rounded-circle">
+                            {% else %}
+                                <img src="{% static 'images/default-profile.png' %}" alt="Photo" width="50" height="50" class="rounded-circle">
+                            {% endif %}
+                        </td>
+                        <td>{{ payment.staff.full_name }}</td>
+                        <td>{{ payment.staff.role }}</td>
+                        <td>₹{{ payment.staff.monthly_salary }}</td>
+                        <td>₹{{ payment.amount }}</td>
+                        <td>{{ payment.payment_month|date:"F Y" }}</td>
+                        <td>{{ payment.paid_on|date:"d M Y" }}</td>
+                        <td>{{ payment.remarks }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No staff payments found.</p>
+    {% endif %}
+</div>
+{% endblock %}

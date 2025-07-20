@@ -1,0 +1,13 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h2>📊 My Monthly Devotional Progress</h2>
+
+<p><strong>Total readings this month:</strong> {{ monthly_readings }}</p>
+<p><strong>Completed readings:</strong> {{ monthly_completed }}</p>
+<p><strong>Progress:</strong> {{ progress_percent }}%</p>
+
+<div class="mt-3">
+    <a href="{% url 'church:member_dashboard' %}" class="btn btn-secondary">🔙 Back to Dashboard</a>
+</div>
+{% endblock %}
