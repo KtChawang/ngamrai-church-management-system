@@ -1,26 +1,9 @@
 services:
   - type: web
-    name: church-management-system
+    name: ngamrai-church-management-system
     env: python
-    buildCommand: |
-      pip install -r requirements.txt
-      python manage.py migrate
-      python manage.py collectstatic --noinput
-    startCommand: gunicorn church_management_system.wsgi:application
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn church_management_system.wsgi
     envVars:
-      - key: DEBUG
-        value: False
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DB_NAME
-        value: your_db_name
-      - key: DB_USER
-        value: your_db_user
-      - key: DB_PASSWORD
-        value: your_db_password
-      - key: DB_HOST
-        value: your_db_host
-      - key: DB_PORT
-        value: 5432
-      - key: FAST2SMS_API_KEY
-        value: your_sms_api_key
+      - key: DJANGO_SETTINGS_MODULE
+        value: church_management_system.settings
