@@ -3,7 +3,7 @@ services:
     name: ngamrai-church-management-system
     env: python
     plan: free
-    buildCommand: ""
+    buildCommand: ""  # <---- THIS MUST BE EMPTY
     startCommand: gunicorn church_management_system.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
