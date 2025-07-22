@@ -79,15 +79,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'church_management_system.wsgi.application'
 ASGI_APPLICATION = 'church_management_system.asgi.application'
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'church_management'),
-        'USER': os.environ.get('DB_USER', 'churchuser'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'your_strong_password'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 STATIC_URL = '/static/'
