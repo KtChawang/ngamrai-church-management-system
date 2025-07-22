@@ -2,14 +2,13 @@ services:
   - type: web
     name: ngamrai-church-management-system
     env: python
-    plan: free
-    buildCommand: ""  # <---- THIS MUST BE EMPTY
+    region: singapore
+    buildCommand: ""  # Leave empty if no build step
     startCommand: gunicorn church_management_system.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: church_management_system.settings
       - key: DATABASE_URL
         fromDatabase:
-          name: ngamrai-church-db
+          name: church-db
           property: connectionString
-    autoDeploy: true
