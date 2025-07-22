@@ -1,3 +1,4 @@
+import dj_database_url
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -80,8 +81,12 @@ ASGI_APPLICATION = 'church_management_system.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'church_management'),
+        'USER': os.environ.get('DB_USER', 'churchuser'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'your_strong_password'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
