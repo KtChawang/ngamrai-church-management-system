@@ -1,1 +1,1 @@
-web: gunicorn church_management_system.wsgi
+web: gunicorn church_management_system.wsgi:application

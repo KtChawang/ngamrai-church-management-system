@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<h2>📨 SMS Logs</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Phone</th>
+            <th>Message</th>
+            <th>Sent At</th>
+            <th>Status</th>
+            <th>Resend</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.phone_number }}</td>
+            <td>{{ log.message }}</td>
+            <td>{{ log.sent_at|date:"M d, Y H:i" }}</td>
+            <td>
+                {% if log.success %}
+                    ✅ Success
+                {% else %}
+                    ❌ Failed
+                {% endif %}
+            </td>
+            <td>
+                <form action="{% url 'resend_sms' log.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-warning">Resend</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No SMS logs yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="javascript:history.back()" class="btn btn-secondary mt-3">← Back</a>
+{% endblock %}
