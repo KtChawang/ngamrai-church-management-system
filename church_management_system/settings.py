@@ -19,7 +19,7 @@ ALLOWED_HOSTS = [
     'ngamraicms.com',
     'www.ngamraicms.com',
     'church-management-system-asyl.onrender.com',
-    'ngamrai-church-management-system.onrender.com',
+    'ngamrai-church-management-system.onrender.com',  # <-- this is missing!
 ]
 
 AUTH_USER_MODEL = 'church.CustomUser'
