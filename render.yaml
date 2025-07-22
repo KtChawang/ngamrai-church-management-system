@@ -3,7 +3,7 @@ services:
     name: ngamrai-church-management-system
     env: python
     region: singapore
-    buildCommand: ""  # Leave empty if no build step
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn church_management_system.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
