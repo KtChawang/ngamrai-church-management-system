@@ -18,9 +18,9 @@ ALLOWED_HOSTS = [
     'localhost',
     'ngamraicms.com',
     'www.ngamraicms.com',
-    'church-management-system-asyl.onrender.com'
+    'church-management-system-asyl.onrender.com',
+    'ngamrai-church-management-system.onrender.com',
 ]
-
 
 AUTH_USER_MODEL = 'church.CustomUser'
 LOGIN_URL = '/church-admin-login/'
