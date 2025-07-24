@@ -259,7 +259,7 @@ path('volunteer/dashboard/', views.volunteer_dashboard, name='volunteer_dashboar
    
 
 path('edit-staff-payment/<int:pk>/', views.edit_staff_payment, name='edit_staff_payment'),
-    path('delete-staff-payment/<int:pk>/', views.delete_staff_payment, name='delete_staff_payment'),
+path('delete-staff-payment/<int:pk>/', views.delete_staff_payment, name='delete_staff_payment'),
 path('staff-salary-pdf/', views.staff_salary_pdf_view, name='staff_salary_pdf'),
 
 

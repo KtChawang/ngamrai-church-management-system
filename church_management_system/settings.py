@@ -1,5 +1,7 @@
+
 import dj_database_url
 from pathlib import Path
+from decouple import config
 import os
 from dotenv import load_dotenv
 
@@ -15,11 +17,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
+    '185.170.196.98',
     'localhost',
     'ngamraicms.com',
     'www.ngamraicms.com',
-    'church-management-system-asyl.onrender.com',
-    'ngamrai-church-management-system.onrender.com',  # <-- this is missing!
 ]
 
 AUTH_USER_MODEL = 'church.CustomUser'
@@ -79,14 +80,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'church_management_system.wsgi.application'
 ASGI_APPLICATION = 'church_management_system.asgi.application'
 
-import dj_database_url
+import os
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'church_db_9y27',
+        'USER': 'church_db_9y27_user',
+        'PASSWORD': 'KamkamSansanch77@#',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 STATIC_URL = '/static/'

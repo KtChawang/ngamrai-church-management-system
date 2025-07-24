@@ -56,3 +56,4 @@ whitenoise==6.9.0
 xhtml2pdf==0.2.17
 XlsxWriter==3.2.3
 zopfli==0.2.3.post1
+dj-database-url

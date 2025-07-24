@@ -3564,18 +3564,24 @@ class StaffSalaryTableView(TemplateView):
         return context
 
 
+@login_required
 def edit_staff_payment(request, pk):
     payment = get_object_or_404(StaffPayment, pk=pk)
+    church = payment.staff.church  # Important!
 
     if request.method == 'POST':
-        form = StaffPaymentForm(request.POST, instance=payment)
+        form = StaffPaymentForm(request.POST, instance=payment, church=church)
         if form.is_valid():
             form.save()
-            return redirect(reverse('church:staff_salary_table'))  # use namespaced version if needed
+            return redirect('church:staff_salary_table')  # or use reverse()
     else:
-        form = StaffPaymentForm(instance=payment)
+        form = StaffPaymentForm(instance=payment, church=church)
 
-    return render(request, 'church/edit_staff_payment.html', {'form': form})
+    return render(request, 'church/edit_staff_payment.html', {
+        'form': form,
+        'payment': payment
+    })
+
 
 
 def delete_staff_payment(request, pk):
